@@ -48,6 +48,7 @@ const jsonLd = JSON.stringify({
           )
         }
         <span>약 {readingMinutes(post.body)}분</span>
+        <button class="copy-link" type="button" data-copy-link>링크 복사</button>
       </div>
       <h1>{post.data.title}</h1>
       <div class="post-rule" role="presentation"></div>
@@ -61,9 +62,53 @@ const jsonLd = JSON.stringify({
     </div>
     <script>
       import mediumZoom from "medium-zoom";
+
+      function initCodeCopy() {
+        document.querySelectorAll<HTMLPreElement>(".prose pre.astro-code").forEach((pre) => {
+          if (pre.parentElement?.classList.contains("code-wrap")) return;
+          const wrap = document.createElement("div");
+          wrap.className = "code-wrap";
+          pre.replaceWith(wrap);
+          wrap.appendChild(pre);
+          const btn = document.createElement("button");
+          btn.className = "code-copy";
+          btn.type = "button";
+          btn.textContent = "복사";
+          btn.addEventListener("click", async () => {
+            try {
+              await navigator.clipboard.writeText(pre.innerText);
+              btn.textContent = "복사됨 ✓";
+              setTimeout(() => (btn.textContent = "복사"), 1600);
+            } catch {
+              btn.textContent = "실패";
+            }
+          });
+          wrap.appendChild(btn);
+        });
+      }
+
+      function initLinkCopy() {
+        document.querySelectorAll<HTMLButtonElement>("[data-copy-link]").forEach((btn) => {
+          if (btn.dataset.bound) return;
+          btn.dataset.bound = "1";
+          btn.addEventListener("click", async () => {
+            const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+            try {
+              await navigator.clipboard.writeText(canonical?.href ?? location.href);
+              btn.textContent = "복사됨 ✓";
+              setTimeout(() => (btn.textContent = "링크 복사"), 1600);
+            } catch {
+              btn.textContent = "실패";
+            }
+          });
+        });
+      }
+
       // astro:page-load는 최초 로드와 ClientRouter 전환 모두에서 발생한다
       document.addEventListener("astro:page-load", () => {
         mediumZoom(".prose img", { background: "rgba(12, 10, 8, 0.93)", margin: 28 });
+        initCodeCopy();
+        initLinkCopy();
       });
     </script>
     <nav class="post-footer-nav">

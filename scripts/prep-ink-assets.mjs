@@ -8,9 +8,9 @@ const OUT = path.resolve("public/ink");
 fs.mkdirSync(OUT, { recursive: true });
 
 const jobs = [
-  { src: "hero-banner.png", out: "hero.webp", width: 1915, quality: 82 },
-  { src: "footer-parade-banner.png", out: "parade.webp", width: 1913, quality: 82 },
-  { src: "lantern.png", out: "lantern.webp", width: 280, quality: 84 },
+  { src: "hero-banner-light.png", out: "hero.webp", width: 1915, quality: 82 },
+  { src: "footer-parade-light.png", out: "parade.webp", width: 1913, quality: 82 },
+  { src: "lantern-light.png", out: "lantern.webp", width: 280, quality: 84 },
   { src: "seal-stamp.png", out: "seal.webp", width: 220, quality: 84 },
   { src: "squirrel-spirit.png", out: "squirrel.webp", width: 360, quality: 84 },
   { src: "scroll-ledger.png", out: "scroll.webp", width: 480, quality: 84 },

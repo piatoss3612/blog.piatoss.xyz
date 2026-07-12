@@ -680,6 +680,58 @@ main.shell {
   display: block;
   margin: 1.4rem auto;
 }
+/* 코드블록 복사 버튼: 호버/포커스 시에만 드러난다 */
+.code-wrap {
+  position: relative;
+}
+.code-copy {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  padding: 0.22rem 0.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  color: var(--sl-text-muted);
+  background: var(--sl-bg-raised);
+  border: 1px solid var(--sl-card-border-dim);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 130ms ease,
+    color 130ms ease,
+    border-color 130ms ease;
+}
+.code-wrap:hover .code-copy,
+.code-copy:focus-visible {
+  opacity: 1;
+}
+.code-copy:hover {
+  color: var(--sl-accent-strong);
+  border-color: var(--sl-card-border);
+}
+@media (hover: none) {
+  .code-copy {
+    opacity: 0.75;
+  }
+}
+
+/* 글 링크 복사: 메타 줄의 조용한 텍스트 버튼 */
+.copy-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--sl-accent-dim);
+  cursor: pointer;
+}
+.copy-link:hover {
+  color: var(--sl-accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* medium-zoom: 확대 시 테두리 제거, 오버레이는 헤더 랜턴 위로 */
 .medium-zoom-image--opened {
   border: none;
