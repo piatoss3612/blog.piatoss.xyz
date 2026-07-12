@@ -23,3 +23,11 @@ for (const j of jobs) {
   const kb = Math.round(fs.statSync(output).size / 1024);
   console.log(`${j.out} ${kb}KB`);
 }
+
+// OG 커버 (1200×630): 히어로 배너에서 소나무~구미호 구간을 잘라낸다
+await sharp(path.join(SRC, "hero-banner.png"))
+  .extract({ left: 250, top: 0, width: 1564, height: 821 })
+  .resize(1200, 630)
+  .jpeg({ quality: 86 })
+  .toFile(path.resolve("public/og-cover.jpg"));
+console.log("og-cover.jpg", Math.round(fs.statSync(path.resolve("public/og-cover.jpg")).size / 1024) + "KB");

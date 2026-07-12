@@ -1,0 +1,16 @@
+# piatoss.log
+
+> piatoss(Rowan)의 개인 블로그. 블록체인·지갑 엔지니어링(Zcash, Ethereum, Solidity, Go, Rust)과
+> AI 도구 사용 경험, 개인 회고를 한국어로 기록한다. 티스토리에서 이식한 2022년~ 아카이브를 포함한다.
+
+- 저자: Rowan (piatoss) — 암호화폐 지갑 회사의 엔지니어링 리드. 포트폴리오: https://piatoss.xyz
+- 전체 글 목록: https://blog.piatoss.xyz/archive/
+- 카테고리: https://blog.piatoss.xyz/categories/
+- RSS: https://blog.piatoss.xyz/rss.xml
+- Sitemap: https://blog.piatoss.xyz/sitemap-index.xml
+
+## 주요 주제
+
+- Zcash 프로토콜, FROST threshold signature, 지갑 엔지니어링 실전 경험
+- Solidity 보안 (Ethernaut 시리즈), EIP 분석 (EIP-7702 등)
+- Go/Rust 학습 기록, AI 도구(Claude Code 등) 활용 경험담과 회고

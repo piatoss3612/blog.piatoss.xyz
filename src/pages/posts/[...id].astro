@@ -17,9 +17,27 @@ const { post, prev, next } = Astro.props;
 const { Content } = await render(post);
 // 에세이는 본문까지 세리프로 — 기술 글은 산세리프 유지
 const isEssay = post.data.category.startsWith("생각 정리");
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.date.toISOString(),
+  inLanguage: "ko",
+  author: { "@type": "Person", name: "piatoss (Rowan)", url: "https://piatoss.xyz" },
+  image: "https://blog.piatoss.xyz/og-cover.jpg",
+  mainEntityOfPage: `https://blog.piatoss.xyz/posts/${post.id}/`,
+});
 ---
 
-<Base title={post.data.title} description={post.data.description}>
+<Base
+  title={post.data.title}
+  description={post.data.description}
+  ogType="article"
+  publishedTime={post.data.date.toISOString()}
+>
+  <script slot="head" type="application/ld+json" set:html={jsonLd} />
   <article>
     <header class="post-header">
       <div class="post-meta">
