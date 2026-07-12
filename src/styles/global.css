@@ -680,6 +680,17 @@ main.shell {
   display: block;
   margin: 1.4rem auto;
 }
+/* medium-zoom: 확대 시 테두리 제거, 오버레이는 헤더 랜턴 위로 */
+.medium-zoom-image--opened {
+  border: none;
+}
+.medium-zoom-overlay {
+  z-index: 90;
+}
+.medium-zoom-image--opened,
+.medium-zoom--opened .medium-zoom-image {
+  z-index: 91;
+}
 .prose blockquote {
   margin: 1.4rem 0;
   padding: 0.35rem 1.3rem;

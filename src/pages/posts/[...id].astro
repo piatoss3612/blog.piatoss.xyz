@@ -59,6 +59,13 @@ const jsonLd = JSON.stringify({
       <img class="night-only" src="/bremen/ledger.webp" alt="" loading="lazy" />
       <img class="ink-only ink-art" src="/ink/seal.webp" alt="" loading="lazy" style="width: 44px;" />
     </div>
+    <script>
+      import mediumZoom from "medium-zoom";
+      // astro:page-load는 최초 로드와 ClientRouter 전환 모두에서 발생한다
+      document.addEventListener("astro:page-load", () => {
+        mediumZoom(".prose img", { background: "rgba(12, 10, 8, 0.93)", margin: 28 });
+      });
+    </script>
     <nav class="post-footer-nav">
       {
         prev ? (
