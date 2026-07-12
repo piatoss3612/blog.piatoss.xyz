@@ -10,6 +10,7 @@ export const SITE = {
 // Tistory 카테고리(한글 포함) → URL slug 매핑.
 // 새 카테고리를 추가하면 여기에 등록한다. 등록하지 않으면 "etc"로 묶인다.
 export const CATEGORY_SLUGS: Record<string, string> = {
+  AI: "ai",
   Solidity: "solidity",
   Go: "go",
   Rust: "rust",
