@@ -1,0 +1,834 @@
+/* piatoss.xyz 디오라마의 야간 숲 팔레트를 그대로 상속한다.
+   세계관: off-black + 랜턴 앰버. 블로그는 디오라마가 아니라 "읽는 방"이므로
+   장식은 억제하고 색과 온도만 가져온다. */
+:root {
+  --sl-bg: oklch(0.1 0.01 60);
+  --sl-bg-raised: oklch(0.13 0.012 60);
+  --sl-accent: oklch(0.65 0.17 55);
+  --sl-accent-strong: oklch(0.72 0.18 58);
+  --sl-accent-dim: oklch(0.48 0.11 52);
+  --sl-text: oklch(0.88 0.02 80);
+  --sl-text-muted: oklch(0.66 0.025 76);
+  --sl-muted: oklch(0.35 0.02 65);
+  --sl-card-bg: rgba(22, 18, 13, 0.78);
+  --sl-card-border: rgba(219, 176, 124, 0.28);
+  --sl-card-border-dim: rgba(219, 176, 124, 0.14);
+  --font-sans: "Outfit", "Pretendard Variable", Pretendard, -apple-system, sans-serif;
+  --font-serif: "Noto Serif KR", "Pretendard Variable", Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --measure: 44rem;
+  /* 테마별 아트 슬롯/장식 변수 */
+  --hero-image: url("/bremen/sky-pixel.webp");
+  --hero-pos: center 22%;
+  --footer-image: url("/bremen/lantern-road.webp");
+  --footer-pos: center 28%;
+  --footer-h: clamp(140px, 11.7vw, 260px);
+  --hero-title-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+  --hero-tag-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
+  --lantern-glow: 224, 165, 94;
+  --card-wash: rgba(224, 165, 94, 0.11);
+  --row-hover: rgba(224, 165, 94, 0.045);
+  --selection: rgba(224, 165, 94, 0.3);
+}
+
+/* 먹(墨) 테마 — 같은 세계의 낮. 팔레트 근거: docs/concept/ink-theme/palette.md, DESIGN.md §4 */
+[data-theme="ink"] {
+  --sl-bg: #f2ebdc;
+  --sl-bg-raised: #fbf7ed;
+  --sl-text: #211f1b;
+  --sl-text-muted: #5f5a51;
+  --sl-muted: #9c9487;
+  --sl-accent: #b83a2c;
+  --sl-accent-strong: #8f2b22;
+  --sl-accent-dim: #d58576;
+  --sl-card-bg: rgba(255, 252, 244, 0.76);
+  --sl-card-border: rgba(52, 47, 40, 0.22);
+  --sl-card-border-dim: rgba(52, 47, 40, 0.12);
+  --hero-image: url("/ink/hero.webp");
+  --hero-pos: center 65%;
+  --footer-image: url("/ink/parade.webp");
+  --footer-pos: center 66%;
+  --footer-h: clamp(210px, 19.5vw, 430px);
+  --hero-title-shadow: none;
+  --hero-tag-shadow: none;
+  --lantern-glow: 184, 58, 44;
+  --card-wash: rgba(184, 58, 44, 0.05);
+  --row-hover: rgba(52, 47, 40, 0.05);
+  --selection: rgba(184, 58, 44, 0.18);
+}
+
+/* 테마별 표시/숨김: 밤 전용 요소와 먹 전용 요소 */
+[data-theme="ink"] .night-only {
+  display: none !important;
+}
+html:not([data-theme="ink"]) .ink-only {
+  display: none !important;
+}
+/* 한지 배경째 그려진 먹 그림을 지면에 녹인다 */
+.ink-art {
+  mix-blend-mode: multiply;
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--sl-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--sl-accent-dim);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--sl-bg);
+  scrollbar-color: oklch(0.43 0.09 55) oklch(0.13 0.012 60);
+  scrollbar-width: thin;
+}
+
+body {
+  margin: 0;
+  background: var(--sl-bg);
+  color: var(--sl-text);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--sl-accent);
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+a:hover {
+  color: var(--sl-accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── 레이아웃 ─────────────────────────────── */
+.shell {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.site-header {
+  position: relative;
+  border-bottom: 1px solid var(--sl-card-border-dim);
+  background: color-mix(in oklab, var(--sl-bg) 88%, black);
+}
+
+/* 체인 랜턴: 헤더 테두리에 매달려 본문 컬럼 바깥 여백에서 흔들린다 */
+.header-lantern {
+  position: absolute;
+  top: 100%;
+  right: 2.2rem;
+  width: 42px;
+  height: auto;
+  z-index: 5;
+  transform-origin: 50% 0;
+  filter: drop-shadow(0 0 14px rgba(var(--lantern-glow), 0.35));
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .header-lantern {
+    animation: lantern-sway 6s ease-in-out infinite;
+  }
+}
+@media (max-width: 66rem) {
+  .header-lantern {
+    display: none;
+  }
+}
+@keyframes lantern-sway {
+  0%,
+  100% {
+    transform: rotate(1.6deg);
+    filter: drop-shadow(0 0 12px rgba(var(--lantern-glow), 0.3));
+  }
+  25% {
+    filter: drop-shadow(0 0 20px rgba(var(--lantern-glow), 0.5));
+  }
+  50% {
+    transform: rotate(-1.6deg);
+    filter: drop-shadow(0 0 14px rgba(var(--lantern-glow), 0.35));
+  }
+  75% {
+    filter: drop-shadow(0 0 18px rgba(var(--lantern-glow), 0.45));
+  }
+}
+
+/* ── 밤의 장부 히어로 (홈) ─────────────────── */
+.hero-scene {
+  position: relative;
+  background: var(--hero-image) var(--hero-pos) / cover no-repeat;
+  border-bottom: 1px solid var(--sl-card-border-dim);
+  overflow: hidden;
+  /* 밴드 높이를 폭에 비례시켜 어떤 뷰포트에서도 그림의 같은 구간이 보이게 한다 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: clamp(200px, 16.5vw, 470px);
+}
+.hero-inner {
+  width: 100%;
+}
+.hero-inner {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 3rem 1.25rem 2.3rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.hero-text h1 {
+  font-size: 2.3rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.45rem;
+  text-shadow: var(--hero-title-shadow);
+}
+.hero-text h1 .accent {
+  color: var(--sl-accent-strong);
+}
+.hero-text p {
+  margin: 0;
+  color: var(--sl-text-muted);
+  text-shadow: var(--hero-tag-shadow);
+}
+.hero-ledger {
+  width: 150px;
+  height: auto;
+  flex: none;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.55));
+}
+@media (max-width: 40rem) {
+  .hero-inner {
+    padding: 2.2rem 1.25rem 1.8rem;
+  }
+  .hero-ledger {
+    width: 92px;
+  }
+  .hero-text h1 {
+    font-size: 1.7rem;
+  }
+  .hero-text p {
+    font-size: 0.92rem;
+  }
+}
+
+/* 반딧불: 히어로 안에서만, 아주 드물게 */
+.firefly {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: oklch(0.82 0.14 78);
+  box-shadow: 0 0 9px 2px rgba(240, 190, 110, 0.55);
+  opacity: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .firefly {
+    animation:
+      firefly-drift 10s ease-in-out infinite,
+      firefly-blink 3.4s ease-in-out infinite;
+  }
+}
+.firefly.f1 {
+  left: 16%;
+  top: 44%;
+  animation-delay: 0s, 0.8s;
+}
+.firefly.f2 {
+  left: 38%;
+  top: 28%;
+  animation-delay: 2.2s, 0s;
+  animation-duration: 12s, 2.8s;
+}
+.firefly.f3 {
+  left: 64%;
+  top: 58%;
+  animation-delay: 4.1s, 1.6s;
+}
+.firefly.f4 {
+  left: 85%;
+  top: 24%;
+  animation-delay: 1.2s, 2.3s;
+  animation-duration: 14s, 3.8s;
+}
+.firefly.f5 {
+  left: 30%;
+  top: 55%;
+  animation-delay: 3s, 1.1s;
+  animation-duration: 12s, 3.1s;
+}
+.firefly.f6 {
+  left: 72%;
+  top: 40%;
+  animation-delay: 0.6s, 2s;
+}
+@keyframes firefly-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(16px, -10px);
+  }
+  50% {
+    transform: translate(-8px, -22px);
+  }
+  75% {
+    transform: translate(-18px, 6px);
+  }
+}
+@keyframes firefly-blink {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.site-header nav {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0.9rem 1.25rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  flex-wrap: wrap;
+}
+.wordmark {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+  color: var(--sl-text);
+}
+.wordmark:hover {
+  text-decoration: none;
+  color: var(--sl-text);
+}
+.wordmark .accent {
+  color: var(--sl-accent);
+}
+.nav-links {
+  display: flex;
+  gap: 0.95rem;
+  font-size: 0.92rem;
+  flex-wrap: wrap;
+}
+.nav-links a {
+  color: var(--sl-text-muted);
+  white-space: nowrap;
+}
+.nav-links a:hover {
+  color: var(--sl-accent-strong);
+}
+
+/* .shell(0,1,0)이 main(0,0,1)을 이겨 세로 패딩이 죽는 사고 방지 — 반드시 main.shell로 */
+main.shell {
+  padding-top: 2.5rem;
+  padding-bottom: 6rem;
+}
+
+.site-footer {
+  border-top: 1px solid var(--sl-card-border-dim);
+  color: var(--sl-text-muted);
+  font-size: 0.9rem;
+}
+/* 랜턴길: 다람쥐가 길 위에 서 있다 */
+.lantern-road {
+  position: relative;
+  height: var(--footer-h);
+  background: var(--footer-image) var(--footer-pos) / cover no-repeat;
+}
+.road-walker {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  image-rendering: pixelated;
+}
+.footer-inner {
+  padding: 1.6rem 1.25rem 2.2rem;
+  text-align: center;
+}
+.site-footer .tagline {
+  margin: 0.2rem 0;
+  color: var(--sl-text-muted);
+}
+.site-footer .fine {
+  margin: 0.2rem 0 0;
+  color: var(--sl-muted);
+}
+
+/* ── 홈/목록 ─────────────────────────────── */
+/* 펼쳐진 기록: 최신 글 하나만 장부의 최신 페이지처럼 대접한다.
+   책갈피 리본 탭 + 픽셀 코너 브래킷 + 좌상단 랜턴 빛 워시 — 게임 대화창 문법. */
+.featured {
+  position: relative;
+  display: block;
+  margin: 1rem 0 3.2rem;
+  padding: 1.9rem 1.8rem 1.4rem;
+  background:
+    radial-gradient(120% 90% at 18% -12%, var(--card-wash), transparent 52%),
+    var(--sl-card-bg);
+  border: 1px solid var(--sl-card-border-dim);
+  border-radius: 4px;
+  color: var(--sl-text);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+.featured::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  pointer-events: none;
+  --bracket: rgba(219, 176, 124, 0.38);
+  background:
+    linear-gradient(var(--bracket), var(--bracket)) top left / 15px 1px,
+    linear-gradient(var(--bracket), var(--bracket)) top left / 1px 15px,
+    linear-gradient(var(--bracket), var(--bracket)) top right / 15px 1px,
+    linear-gradient(var(--bracket), var(--bracket)) top right / 1px 15px,
+    linear-gradient(var(--bracket), var(--bracket)) bottom left / 15px 1px,
+    linear-gradient(var(--bracket), var(--bracket)) bottom left / 1px 15px,
+    linear-gradient(var(--bracket), var(--bracket)) bottom right / 15px 1px,
+    linear-gradient(var(--bracket), var(--bracket)) bottom right / 1px 15px;
+  background-repeat: no-repeat;
+  transition: opacity 160ms ease;
+}
+.featured:hover {
+  text-decoration: none;
+  color: var(--sl-text);
+  border-color: var(--sl-card-border);
+  box-shadow: 0 8px 34px rgba(224, 165, 94, 0.1);
+  transform: translateY(-1px);
+}
+.featured:hover::before {
+  --bracket: rgba(229, 186, 134, 0.6);
+}
+/* 책갈피 리본: 카드 위 테두리에 걸쳐 있다 */
+.featured-label {
+  position: absolute;
+  top: -0.95rem;
+  left: 1.35rem;
+  margin: 0;
+  padding: 0.34rem 0.9rem 0.4rem;
+  background: linear-gradient(180deg, oklch(0.68 0.16 56), oklch(0.55 0.13 52));
+  border: 1px solid oklch(0.4 0.09 50);
+  color: oklch(0.17 0.025 60);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+  transition: filter 160ms ease;
+}
+.featured:hover .featured-label {
+  filter: brightness(1.08);
+}
+/* 먹 테마의 리본은 낙관처럼 — 주홍 바탕에 한지색 글자 */
+[data-theme="ink"] .featured-label {
+  background: linear-gradient(180deg, #b83a2c, #8f2b22);
+  border-color: #7c241c;
+  color: #f7efe0;
+  box-shadow: 2px 2px 0 rgba(60, 30, 20, 0.25);
+}
+
+/* 토글 버튼: 墨(먹으로) / 月(밤으로) */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--sl-card-border-dim);
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--sl-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease;
+}
+.theme-toggle:hover {
+  color: var(--sl-accent-strong);
+  border-color: var(--sl-card-border);
+}
+.featured-title {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+}
+.featured:hover .featured-title {
+  color: var(--sl-accent-strong);
+}
+.featured-desc {
+  margin: 0 0 0.8rem;
+  color: var(--sl-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.featured-meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--sl-muted);
+}
+
+.hero {
+  margin-bottom: 2.5rem;
+}
+.hero h1 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.01em;
+}
+.hero p {
+  margin: 0;
+  color: var(--sl-text-muted);
+}
+
+.section-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--sl-accent-dim);
+  margin: 0 0 0.7rem;
+}
+
+.post-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* 행 패딩만큼 음수 마진으로 당겨서 텍스트 좌측선이 다른 요소와 정렬되게 한다 */
+.post-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.65rem 0.55rem;
+  margin-inline: -0.55rem;
+  border-bottom: 1px solid var(--sl-card-border-dim);
+  border-radius: 6px;
+  transition: background-color 140ms ease;
+}
+.post-list li:hover {
+  background: var(--row-hover);
+}
+.post-list .post-date {
+  flex: none;
+  width: 6.2rem;
+  font-size: 0.85rem;
+  color: var(--sl-muted);
+  font-variant-numeric: tabular-nums;
+}
+.post-list a {
+  color: var(--sl-text);
+}
+.post-list a:hover {
+  color: var(--sl-accent-strong);
+}
+.post-list .post-cat {
+  margin-left: auto;
+  flex: none;
+  font-size: 0.78rem;
+  color: var(--sl-accent-dim);
+}
+
+.year-heading {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--sl-accent);
+  margin: 2.4rem 0 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.year-heading::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--sl-card-border), transparent);
+}
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.8rem;
+  padding: 0;
+  list-style: none;
+}
+.cat-grid a {
+  display: block;
+  padding: 0.9rem 1.1rem;
+  background: var(--sl-card-bg);
+  border: 1px solid var(--sl-card-border-dim);
+  border-radius: 8px;
+  color: var(--sl-text);
+}
+.cat-grid a:hover {
+  border-color: var(--sl-card-border);
+  text-decoration: none;
+}
+.cat-grid .count {
+  color: var(--sl-accent-dim);
+  font-size: 0.88rem;
+  margin-left: 0.3rem;
+}
+
+/* ── 포스트 본문 ─────────────────────────── */
+.post-header {
+  margin-bottom: 2.2rem;
+}
+.post-header h1 {
+  font-family: var(--font-serif);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.42;
+  margin: 0.5rem 0 1rem;
+  letter-spacing: -0.005em;
+}
+.post-meta {
+  font-size: 0.88rem;
+  color: var(--sl-text-muted);
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+.post-meta > *:not(:first-child)::before {
+  content: "·";
+  margin-right: 0.45rem;
+  color: var(--sl-muted);
+}
+.post-meta a {
+  color: var(--sl-accent);
+}
+.post-rule {
+  width: 3.2rem;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--sl-accent), var(--sl-accent-dim));
+  box-shadow: 0 0 8px rgba(224, 165, 94, 0.35);
+}
+
+/* 에세이 모드: 본문이 세리프로 흐른다 */
+.prose-essay {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  line-height: 1.95;
+}
+.prose-essay h2,
+.prose-essay h3,
+.prose-essay h4 {
+  font-family: var(--font-serif);
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose p {
+  margin: 1.05em 0;
+}
+.prose-essay p {
+  margin: 0.9em 0;
+}
+.prose h2,
+.prose h3,
+.prose h4 {
+  line-height: 1.4;
+  margin: 2.6rem 0 0.9rem;
+  letter-spacing: -0.01em;
+}
+.prose h2 {
+  font-size: 1.45rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--sl-card-border-dim);
+}
+.prose h3 {
+  font-size: 1.2rem;
+}
+.prose h4 {
+  font-size: 1.05rem;
+}
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--sl-card-border-dim);
+  display: block;
+  margin: 1.4rem auto;
+}
+.prose blockquote {
+  margin: 1.4rem 0;
+  padding: 0.35rem 1.3rem;
+  border-left: 3px solid var(--sl-accent-dim);
+  background: var(--sl-card-bg);
+  border-radius: 0 6px 6px 0;
+  color: var(--sl-text-muted);
+  font-family: var(--font-serif);
+  font-size: 0.98em;
+}
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+.prose :not(pre) > code {
+  background: var(--sl-bg-raised);
+  border: 1px solid var(--sl-card-border-dim);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  color: var(--sl-accent-strong);
+}
+.prose pre.astro-code {
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  border: 1px solid var(--sl-card-border-dim);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  /* vitesse-dark의 차가운 #121212 대신 웜 오프블랙으로 — 페이지 색온도 통일 */
+  background: #16120e !important;
+}
+.prose table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+  margin: 1.4rem 0;
+}
+.prose th,
+.prose td {
+  border: 1px solid var(--sl-card-border-dim);
+  padding: 0.45rem 0.8rem;
+  font-size: 0.92rem;
+}
+.prose th {
+  background: var(--sl-bg-raised);
+}
+.prose hr {
+  border: none;
+  margin: 2.6rem 0;
+  text-align: center;
+}
+.prose hr::after {
+  content: "✦ ✦ ✦";
+  color: var(--sl-accent-dim);
+  font-size: 0.72rem;
+  letter-spacing: 0.7em;
+  margin-left: 0.7em;
+}
+
+/* 글의 끝: 장부를 덮는다 */
+.post-end {
+  text-align: center;
+  margin: 3.2rem 0 0;
+}
+.post-end img {
+  width: 52px;
+  height: auto;
+  opacity: 0.9;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+}
+
+.post-footer-nav {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--sl-card-border-dim);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+.pn-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1.05rem;
+  background: var(--sl-card-bg);
+  border: 1px solid var(--sl-card-border-dim);
+  border-radius: 8px;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+.pn-card:hover {
+  text-decoration: none;
+  border-color: var(--sl-card-border);
+  box-shadow: 0 4px 18px rgba(224, 165, 94, 0.07);
+}
+.pn-next {
+  text-align: right;
+}
+.pn-label {
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: var(--sl-accent-dim);
+}
+.pn-title {
+  font-size: 0.92rem;
+  color: var(--sl-text);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pn-card:hover .pn-title {
+  color: var(--sl-accent-strong);
+}
+@media (max-width: 40rem) {
+  .post-footer-nav {
+    grid-template-columns: 1fr;
+  }
+  .pn-next {
+    text-align: left;
+  }
+}
+
+/* ── 404 ─────────────────────────────────── */
+.lost {
+  text-align: center;
+  padding: 4rem 0;
+}
+.lost img {
+  width: 96px;
+  image-rendering: pixelated;
+  margin-bottom: 1rem;
+}
+
+/* 모바일: 날짜를 항상 제목 위 한 줄로 — 좌측 정렬선이 항상 일정하게 */
+@media (max-width: 40rem) {
+  .post-list li {
+    display: block;
+    padding: 0.6rem 0.55rem;
+  }
+  .post-list .post-date {
+    display: block;
+    width: auto;
+    font-size: 0.78rem;
+    margin-bottom: 0.15rem;
+  }
+  .post-list .post-cat {
+    display: none;
+  }
+}

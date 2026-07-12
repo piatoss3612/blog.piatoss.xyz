@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Ink-wash squirrel spirit</title>
+  <desc id="desc">An unmistakable tuft-eared squirrel with a tail larger than its body, round bright eyes, a tiny acorn, and one vermillion forehead dot.</desc>
+  <defs>
+    <linearGradient id="tailWash" x1="314" y1="425" x2="450" y2="139" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#25231f" stop-opacity="0.78"/>
+      <stop offset="0.38" stop-color="#777168" stop-opacity="0.72"/>
+      <stop offset="0.72" stop-color="#c7c0b3" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#6c675f" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="bodyWash" x1="190" y1="182" x2="281" y2="443" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f5efe2"/>
+      <stop offset="0.55" stop-color="#b9b2a6" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#6e6961" stop-opacity="0.66"/>
+    </linearGradient>
+    <radialGradient id="faceWash" cx="43%" cy="34%" r="71%">
+      <stop stop-color="#fffaf0"/>
+      <stop offset="0.75" stop-color="#e8e0d2"/>
+      <stop offset="1" stop-color="#aaa398" stop-opacity="0.74"/>
+    </radialGradient>
+    <filter id="fineContour" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.082" numOctaves="2" seed="27" result="contourNoise"/>
+      <feDisplacementMap in="SourceGraphic" in2="contourNoise" scale="6.5" xChannelSelector="R" yChannelSelector="B"/>
+    </filter>
+    <filter id="softWash" x="-18%" y="-18%" width="136%" height="136%" color-interpolation-filters="sRGB">
+      <feTurbulence type="turbulence" baseFrequency="0.011 0.046" numOctaves="3" seed="8" result="washNoise"/>
+      <feDisplacementMap in="SourceGraphic" in2="washNoise" scale="5" xChannelSelector="G" yChannelSelector="R" result="warped"/>
+      <feGaussianBlur in="warped" stdDeviation="0.35"/>
+    </filter>
+    <filter id="redBleed" x="-80%" y="-80%" width="260%" height="260%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="19" result="redNoise"/>
+      <feDisplacementMap in="SourceGraphic" in2="redNoise" scale="1.5"/>
+    </filter>
+  </defs>
+
+  <!-- The tail is a pale, articulated character shape rather than a black silhouette. -->
+  <g filter="url(#fineContour)">
+    <path d="M285 407 C345 454 433 448 470 382 C500 328 484 251 446 207 C418 174 379 150 349 161 C324 170 309 197 315 224 C322 255 352 276 382 269 C408 263 424 239 418 217 C414 202 403 190 390 184 C419 183 448 205 462 236 C479 275 474 320 452 349 C423 388 363 401 307 374 Z" fill="url(#tailWash)" stroke="#2b2924" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M314 393 C366 418 423 400 445 358 C466 319 460 268 438 233 C423 210 403 197 385 191" fill="none" stroke="#f0e8d9" stroke-width="12" stroke-linecap="round" opacity="0.42" stroke-dasharray="66 14 30 19"/>
+    <path d="M339 386 C388 390 428 360 437 320 M353 361 C398 353 423 326 424 285 M351 336 C388 321 406 300 407 275" fill="none" stroke="#4d4943" stroke-width="3.2" stroke-linecap="round" opacity="0.42"/>
+    <path d="M462 243 C474 265 479 292 476 317 M450 207 C463 223 471 238 476 254" fill="none" stroke="#8f887d" stroke-width="2.5" opacity="0.45"/>
+  </g>
+
+  <!-- Soft torso wash, crisp contour, and clearly separated limbs. -->
+  <g filter="url(#fineContour)">
+    <path d="M178 286 C157 320 158 382 178 423 C196 459 232 468 257 441 C282 468 319 456 334 419 C350 378 345 320 320 286 C288 260 211 260 178 286 Z" fill="url(#bodyWash)" stroke="#2a2823" stroke-width="6"/>
+    <path d="M201 304 C187 337 190 393 208 421 C222 442 243 431 257 409 C271 433 297 440 312 416 C328 389 326 337 312 304 C280 283 229 283 201 304 Z" fill="#f5eee0" opacity="0.38" filter="url(#softWash)"/>
+    <path d="M192 307 C163 317 146 345 151 373 C154 391 172 394 190 378 C204 365 211 344 215 322" fill="#b1aa9f" stroke="#2a2823" stroke-width="5"/>
+    <path d="M315 307 C344 319 356 347 349 374 C344 392 326 394 309 378 C296 365 290 344 287 323" fill="#aaa399" stroke="#2a2823" stroke-width="5"/>
+    <path d="M207 427 C198 449 182 461 162 462 C171 477 198 478 218 460" fill="#47443e" stroke="#292722" stroke-width="5"/>
+    <path d="M300 427 C310 449 327 459 348 458 C339 475 312 477 291 460" fill="#47443e" stroke="#292722" stroke-width="5"/>
+  </g>
+
+  <!-- Two tufted ears and a broad squirrel face. -->
+  <g filter="url(#fineContour)">
+    <path d="M178 105 L174 76 L188 91 L194 67 L202 104" fill="#716c63" stroke="#292722" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M310 102 L319 69 L325 91 L339 75 L334 110" fill="#716c63" stroke="#292722" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M177 174 C166 149 168 118 188 91 C204 112 216 136 215 163 Z" fill="#8e887e" stroke="#292722" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M293 162 C293 132 307 108 326 87 C344 119 343 150 332 181 Z" fill="#8e887e" stroke="#292722" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M184 145 C183 127 186 113 190 105 C199 120 204 134 205 150" fill="#eee6d7" stroke="#6a655d" stroke-width="3" opacity="0.72"/>
+    <path d="M305 148 C310 125 317 108 325 99 C331 119 332 136 328 153" fill="#eee6d7" stroke="#6a655d" stroke-width="3" opacity="0.72"/>
+    <path d="M171 190 C175 147 211 124 257 125 C306 125 341 152 341 198 C341 246 306 276 256 277 C207 278 166 244 171 190 Z" fill="url(#faceWash)" stroke="#292722" stroke-width="6"/>
+    <path d="M190 221 C207 250 231 261 256 260 C283 260 309 246 323 219 C303 230 281 235 256 235 C230 235 210 231 190 221 Z" fill="#fffaf0" opacity="0.74" filter="url(#softWash)"/>
+  </g>
+
+  <!-- Large round eyes, lifted brows, and a compact muzzle stay legible small. -->
+  <g filter="url(#fineContour)">
+    <circle cx="217" cy="194" r="14" fill="#24221e"/>
+    <circle cx="294" cy="194" r="14" fill="#24221e"/>
+    <circle cx="212" cy="189" r="4.2" fill="#fffaf0"/>
+    <circle cx="289" cy="189" r="4.2" fill="#fffaf0"/>
+    <path d="M199 171 C209 164 222 163 232 169 M279 169 C289 163 302 164 312 172" fill="none" stroke="#3a3731" stroke-width="4" stroke-linecap="round"/>
+    <path d="M246 222 C252 217 261 217 267 222 C264 232 250 232 246 222 Z" fill="#292722"/>
+    <path d="M256 230 C254 240 245 244 236 241 M256 230 C258 240 267 244 277 240" fill="none" stroke="#292722" stroke-width="4" stroke-linecap="round"/>
+    <path d="M249 242 L249 251 C252 254 255 254 257 251 C260 254 264 253 266 250 L266 242" fill="#fffaf0" stroke="#37342e" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M201 231 L166 226 M201 240 L164 246 M311 230 L346 224 M311 240 L349 246" fill="none" stroke="#4a4640" stroke-width="2.6" stroke-linecap="round" opacity="0.72"/>
+  </g>
+
+  <!-- Both paws hold one tiny, plainly drawn acorn. -->
+  <g filter="url(#fineContour)">
+    <path d="M190 352 C207 338 224 338 238 350 C229 365 218 373 203 374" fill="#777168" stroke="#2b2924" stroke-width="4.5"/>
+    <path d="M321 352 C305 338 288 338 274 350 C282 365 293 374 308 375" fill="#777168" stroke="#2b2924" stroke-width="4.5"/>
+    <path d="M233 348 C233 327 243 314 257 314 C272 314 281 328 280 348 C278 371 267 386 257 388 C245 385 234 371 233 348 Z" fill="#81796c" stroke="#2a2823" stroke-width="5"/>
+    <path d="M231 331 C243 320 270 320 282 332 C273 342 243 344 231 331 Z" fill="#4a4640" stroke="#292722" stroke-width="4"/>
+    <path d="M257 317 C256 307 262 301 270 298" fill="none" stroke="#292722" stroke-width="4" stroke-linecap="round"/>
+    <path d="M238 352 C248 358 266 358 276 351" fill="none" stroke="#d8cfbf" stroke-width="2" opacity="0.52"/>
+  </g>
+
+  <!-- The only vermillion mark: a small forehead dot. -->
+  <circle cx="256" cy="153" r="7.5" fill="#bf3b2d" filter="url(#redBleed)"/>
+
+  <g fill="#2b2924" opacity="0.5" filter="url(#fineContour)">
+    <circle cx="142" cy="438" r="3.4"/>
+    <circle cx="132" cy="451" r="1.8"/>
+    <ellipse cx="368" cy="448" rx="7" ry="2.2" transform="rotate(-9 368 448)"/>
+  </g>
+</svg>

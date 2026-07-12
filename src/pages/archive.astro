@@ -1,0 +1,45 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import { mainCategory, categorySlug } from "../lib/site";
+
+const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const byYear = new Map<number, typeof posts>();
+for (const post of posts) {
+  const year = post.data.date.getFullYear();
+  if (!byYear.has(year)) byYear.set(year, []);
+  byYear.get(year)!.push(post);
+}
+
+function fmt(d: Date) {
+  return d.toISOString().slice(5, 10);
+}
+---
+
+<Base title="아카이브">
+  <section class="hero">
+    <h1>아카이브</h1>
+    <p>전체 {posts.length}편 — 티스토리 시절(2022~)의 기록을 포함한다.</p>
+  </section>
+  {
+    [...byYear.entries()].map(([year, yearPosts]) => (
+      <section>
+        <h2 class="year-heading">{year}</h2>
+        <ul class="post-list">
+          {yearPosts.map((post) => (
+            <li>
+              <span class="post-date">{fmt(post.data.date)}</span>
+              <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+              <a class="post-cat" href={`/categories/${categorySlug(post.data.category)}/`}>
+                {mainCategory(post.data.category)}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</Base>

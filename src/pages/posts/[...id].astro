@@ -1,0 +1,67 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { categorySlug } from "../../lib/site";
+import { dateKorean, readingMinutes } from "../../lib/format";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts", ({ data }) => !data.draft);
+  const sorted = posts.sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+  return sorted.map((post, i) => ({
+    params: { id: post.id },
+    props: { post, prev: sorted[i - 1] ?? null, next: sorted[i + 1] ?? null },
+  }));
+}
+
+const { post, prev, next } = Astro.props;
+const { Content } = await render(post);
+// 에세이는 본문까지 세리프로 — 기술 글은 산세리프 유지
+const isEssay = post.data.category.startsWith("생각 정리");
+---
+
+<Base title={post.data.title} description={post.data.description}>
+  <article>
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime={post.data.date.toISOString()}>{dateKorean(post.data.date)}</time>
+        {
+          post.data.category && (
+            <a href={`/categories/${categorySlug(post.data.category)}/`}>{post.data.category}</a>
+          )
+        }
+        <span>약 {readingMinutes(post.body)}분</span>
+      </div>
+      <h1>{post.data.title}</h1>
+      <div class="post-rule" role="presentation"></div>
+    </header>
+    <div class:list={["prose", { "prose-essay": isEssay }]}>
+      <Content />
+    </div>
+    <div class="post-end" role="presentation">
+      <img class="night-only" src="/bremen/ledger.webp" alt="" loading="lazy" />
+      <img class="ink-only ink-art" src="/ink/seal.webp" alt="" loading="lazy" style="width: 44px;" />
+    </div>
+    <nav class="post-footer-nav">
+      {
+        prev ? (
+          <a class="pn-card" href={`/posts/${prev.id}/`}>
+            <span class="pn-label">← 이전 기록</span>
+            <span class="pn-title">{prev.data.title}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        next ? (
+          <a class="pn-card pn-next" href={`/posts/${next.id}/`}>
+            <span class="pn-label">다음 기록 →</span>
+            <span class="pn-title">{next.data.title}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+    </nav>
+  </article>
+</Base>

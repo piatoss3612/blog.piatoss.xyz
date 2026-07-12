@@ -1,0 +1,44 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { mainCategory, categorySlug, CATEGORY_BY_SLUG } from "../../lib/site";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts", ({ data }) => !data.draft);
+  const slugs = new Set(posts.map((post) => categorySlug(post.data.category)));
+  return [...slugs].map((slug) => ({
+    params: { slug },
+    props: {
+      posts: posts
+        .filter((post) => categorySlug(post.data.category) === slug)
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+    },
+  }));
+}
+
+const { slug } = Astro.params;
+const { posts } = Astro.props;
+const name = CATEGORY_BY_SLUG[slug!] ?? "기타";
+
+function fmt(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+---
+
+<Base title={name}>
+  <section class="hero">
+    <h1>{name}</h1>
+    <p>{posts.length}편</p>
+  </section>
+  <ul class="post-list">
+    {
+      posts.map((post) => (
+        <li>
+          <span class="post-date">{fmt(post.data.date)}</span>
+          <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+          <span class="post-cat">{post.data.category}</span>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

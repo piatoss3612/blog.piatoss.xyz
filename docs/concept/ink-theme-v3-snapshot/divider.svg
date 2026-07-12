@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 160" role="img" aria-labelledby="title desc">
+  <title id="title">Dry-brush ink divider</title>
+  <desc id="desc">A horizontal ragged sumi stroke with sparse splatter and one vermillion mark.</desc>
+  <defs>
+    <filter id="bristleRough" x="-5%" y="-45%" width="110%" height="190%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.16" numOctaves="3" seed="33" result="bristleNoise"/>
+      <feDisplacementMap in="SourceGraphic" in2="bristleNoise" scale="8" xChannelSelector="R" yChannelSelector="B"/>
+    </filter>
+    <mask id="dryLine">
+      <rect width="1200" height="160" fill="white"/>
+      <g fill="none" stroke="black" stroke-linecap="round">
+        <path d="M104 76 C327 65 503 88 704 73 S982 70 1094 81" stroke-width="7" stroke-dasharray="83 18 9 29 126 22 17 36"/>
+        <path d="M160 89 C350 77 544 97 750 84 S1001 83 1063 88" stroke-width="4" stroke-dasharray="31 16 77 26 12 35" opacity="0.85"/>
+      </g>
+      <ellipse cx="527" cy="70" rx="19" ry="4" fill="black" transform="rotate(2 527 70)"/>
+      <ellipse cx="889" cy="82" rx="13" ry="3" fill="black" transform="rotate(-4 889 82)"/>
+    </mask>
+  </defs>
+  <g mask="url(#dryLine)" filter="url(#bristleRough)">
+    <path d="M84 78 C261 48 424 84 605 69 C779 55 937 62 1117 83" fill="none" stroke="#1f1d19" stroke-width="25" stroke-linecap="round" opacity="0.88"/>
+    <path d="M111 91 C342 75 528 101 733 82 C876 69 1002 77 1091 91" fill="none" stroke="#4f4a43" stroke-width="8" stroke-linecap="round" opacity="0.55"/>
+    <path d="M177 57 C344 68 491 52 648 62 C785 70 902 57 1028 70" fill="none" stroke="#8b8479" stroke-width="3" stroke-dasharray="52 27 11 42" stroke-linecap="round" opacity="0.38"/>
+  </g>
+  <g fill="#24211d" opacity="0.66" filter="url(#bristleRough)">
+    <circle cx="67" cy="62" r="5"/>
+    <circle cx="49" cy="88" r="2.5"/>
+    <ellipse cx="75" cy="105" rx="8" ry="3" transform="rotate(-18 75 105)"/>
+    <circle cx="1138" cy="63" r="4"/>
+    <circle cx="1152" cy="94" r="2.5"/>
+    <path d="M1121 113 C1129 107 1136 113 1132 120 C1125 123 1118 119 1121 113 Z"/>
+  </g>
+  <!-- One restrained vermillion punctuation mark. -->
+  <path d="M1055 50 C1063 44 1074 48 1075 58 C1072 68 1059 71 1052 62 C1049 57 1050 53 1055 50 Z" fill="#c13d2e" opacity="0.9" filter="url(#bristleRough)"/>
+</svg>

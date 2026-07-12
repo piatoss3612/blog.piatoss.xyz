@@ -1,0 +1,98 @@
+---
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import { SITE } from "../lib/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = SITE.description } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE.title}` : SITE.title;
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // 테마 적용은 페인트 전에 — FOUC 방지. ?theme= 파라미터는 테스트/공유용.
+      (function () {
+        function applyTheme() {
+          var t = localStorage.getItem("theme");
+          try {
+            var q = new URL(location.href).searchParams.get("theme");
+            if (q === "ink" || q === "night") {
+              t = q;
+              localStorage.setItem("theme", t);
+            }
+          } catch (e) {}
+          if (t === "ink") document.documentElement.setAttribute("data-theme", "ink");
+          else document.documentElement.removeAttribute("data-theme");
+        }
+        applyTheme();
+        if (!window.__themeInit) {
+          window.__themeInit = true;
+          document.addEventListener("astro:after-swap", applyTheme);
+          document.addEventListener("click", function (e) {
+            var btn = e.target && e.target.closest ? e.target.closest("[data-theme-toggle]") : null;
+            if (!btn) return;
+            var ink = document.documentElement.getAttribute("data-theme") === "ink";
+            localStorage.setItem("theme", ink ? "night" : "ink");
+            applyTheme();
+          });
+        }
+      })();
+    </script>
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <ClientRouter />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav>
+        <a class="wordmark" href="/">piatoss<span class="accent">.log</span></a>
+        <div class="nav-links">
+          <a href="/archive">아카이브</a>
+          <a href="/categories">카테고리</a>
+          <a href={SITE.portfolio} target="_blank" rel="noopener">piatoss.xyz ↗</a>
+          <a href="/rss.xml">RSS</a>
+          <button class="theme-toggle" data-theme-toggle aria-label="밤/먹 테마 전환" title="밤/먹 테마 전환">
+            <span class="night-only">墨</span><span class="ink-only">月</span>
+          </button>
+        </div>
+      </nav>
+      <img class="header-lantern night-only" src="/bremen/lantern.webp" alt="" aria-hidden="true" />
+      <img class="header-lantern ink-only ink-art" src="/ink/lantern.webp" alt="" aria-hidden="true" />
+    </header>
+    <slot name="hero" />
+    <main class="shell">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="lantern-road" role="presentation">
+        <img class="road-walker night-only" src="/piatoss-squirrel.webp" alt="" aria-hidden="true" loading="lazy" />
+        <span class="firefly f5 night-only"></span>
+        <span class="firefly f6 night-only"></span>
+      </div>
+      <div class="footer-inner">
+        <p class="tagline">Wallets, Zcash, and strange little interfaces.</p>
+        <p class="fine">© {new Date().getFullYear()} piatoss · <a href={SITE.portfolio}>piatoss.xyz</a></p>
+      </div>
+    </footer>
+  </body>
+</html>

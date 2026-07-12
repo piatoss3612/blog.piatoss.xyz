@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" preserveAspectRatio="none" role="img" aria-labelledby="title desc">
+  <title id="title">Tileable warm washi paper texture</title>
+  <desc id="desc">A seamless cream paper tile with clouded pulp, laid fibers, and faint gray wash.</desc>
+  <defs>
+    <!-- Only stitched procedural grain reaches the tile boundary. -->
+    <filter id="seamlessGrain" filterUnits="userSpaceOnUse" x="0" y="0" width="512" height="512" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.007 0.18" numOctaves="4" seed="13" stitchTiles="stitch" result="fibers"/>
+      <feColorMatrix in="fibers" type="matrix" values="0.15 0 0 0 0.73  0 0.12 0 0 0.69  0 0 0.08 0 0.62  0 0 0 0.24 0" result="warmFibers"/>
+      <feBlend in="SourceGraphic" in2="warmFibers" mode="multiply"/>
+    </filter>
+    <!-- Displacement is reserved for interior pulp marks, away from all seams. -->
+    <filter id="pulpRag" x="-12%" y="-18%" width="124%" height="136%" color-interpolation-filters="sRGB">
+      <feTurbulence type="turbulence" baseFrequency="0.016 0.065" numOctaves="3" seed="29" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="fiberRag" x="-8%" y="-12%" width="116%" height="124%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022 0.13" numOctaves="2" seed="6" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="B" yChannelSelector="R"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" fill="#f2ebdc"/>
+  <rect width="512" height="512" fill="#f8f2e6" filter="url(#seamlessGrain)" opacity="0.72"/>
+
+  <!-- Localized pulp clouds fade before the edge so adjacent tiles share identical boundaries. -->
+  <g filter="url(#pulpRag)" opacity="0.22">
+    <ellipse cx="151" cy="119" rx="112" ry="42" fill="#c9bba5" opacity="0.19"/>
+    <ellipse cx="377" cy="206" rx="95" ry="55" fill="#fffaf0" opacity="0.32"/>
+    <ellipse cx="220" cy="359" rx="157" ry="48" fill="#aeb1b9" opacity="0.09"/>
+    <path d="M47 264 C126 225 206 283 284 253 C352 227 412 239 468 274 C399 300 336 281 273 299 C193 322 120 284 47 307 Z" fill="#b7aa96" opacity="0.11"/>
+  </g>
+
+  <!-- Laid fibers stop inside a fourteen-pixel safety margin. -->
+  <g fill="none" stroke-linecap="round" filter="url(#fiberRag)">
+    <path d="M17 47 C93 42 151 55 224 47 S389 41 495 50" stroke="#9d907c" stroke-width="1.3" stroke-dasharray="54 33 11 45" opacity="0.17"/>
+    <path d="M16 187 C116 181 179 195 276 184 S420 183 496 190" stroke="#b8aa95" stroke-width="1" stroke-dasharray="19 38 72 25" opacity="0.2"/>
+    <path d="M18 301 C82 293 171 309 249 299 S402 295 494 306" stroke="#938675" stroke-width="1.5" stroke-dasharray="83 26 15 39" opacity="0.13"/>
+    <path d="M17 462 C108 450 170 470 272 459 S410 453 495 464" stroke="#a79a85" stroke-width="1.1" stroke-dasharray="32 19 91 47" opacity="0.18"/>
+    <path d="M74 16 C69 88 82 146 76 225 S69 397 78 496" stroke="#c2b6a4" stroke-width="0.9" stroke-dasharray="28 53 11 35" opacity="0.13"/>
+    <path d="M359 17 C352 84 368 161 360 245 S353 409 362 495" stroke="#8f8270" stroke-width="0.8" stroke-dasharray="17 41 66 29" opacity="0.09"/>
+  </g>
+
+  <g fill="#877b6c" opacity="0.1">
+    <ellipse cx="122" cy="116" rx="2.1" ry="0.7" transform="rotate(-14 122 116)"/>
+    <ellipse cx="404" cy="229" rx="3.2" ry="0.8" transform="rotate(9 404 229)"/>
+    <ellipse cx="276" cy="420" rx="2.5" ry="0.7" transform="rotate(-7 276 420)"/>
+    <circle cx="467" cy="98" r="0.9"/>
+    <circle cx="51" cy="388" r="0.8"/>
+  </g>
+</svg>
