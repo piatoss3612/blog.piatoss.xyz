@@ -1,6 +1,6 @@
 export const SITE = {
   title: "piatoss.log",
-  tagline: "wallets, Zcash, and strange little interfaces — 날것의 기록",
+  tagline: "wallets, Zcash, and strange little interfaces.",
   description:
     "piatoss(rowan)의 기록. 블록체인, 지갑, Zcash, Go — 그리고 만들고 부수면서 겪은 것들.",
   url: "https://blog.piatoss.xyz",

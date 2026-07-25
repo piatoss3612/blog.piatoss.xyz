@@ -6,11 +6,17 @@ import { dateKorean, readingMinutes } from "../../lib/format";
 
 export async function getStaticPaths() {
   const posts = await getCollection("posts", ({ data }) => !data.draft);
-  const sorted = posts.sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
-  return sorted.map((post, i) => ({
-    params: { id: post.id },
-    props: { post, prev: sorted[i - 1] ?? null, next: sorted[i + 1] ?? null },
-  }));
+  return posts.map((post) => {
+    const isArchive = post.data.tistoryId !== undefined;
+    const siblings = posts
+      .filter((candidate) => (candidate.data.tistoryId !== undefined) === isArchive)
+      .sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+    const index = siblings.findIndex((candidate) => candidate.id === post.id);
+    return {
+      params: { id: post.id },
+      props: { post, prev: siblings[index - 1] ?? null, next: siblings[index + 1] ?? null },
+    };
+  });
 }
 
 const { post, prev, next } = Astro.props;
@@ -57,8 +63,7 @@ const jsonLd = JSON.stringify({
       <Content />
     </div>
     <div class="post-end" role="presentation">
-      <img class="night-only" src="/bremen/ledger.webp" alt="" loading="lazy" />
-      <img class="ink-only ink-art" src="/ink/seal.webp" alt="" loading="lazy" style="width: 44px;" />
+      <img src="/dreamcore/post-diary.webp" alt="" loading="lazy" />
     </div>
     <script>
       import mediumZoom from "medium-zoom";

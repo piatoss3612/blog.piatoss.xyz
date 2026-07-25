@@ -7,8 +7,10 @@ import { dateDot, dateKorean, readingMinutes } from "../lib/format";
 const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
-const [latest, ...rest] = posts;
-const recent = rest.slice(0, 14);
+const currentPosts = posts.filter((post) => post.data.tistoryId === undefined);
+const archivePosts = posts.filter((post) => post.data.tistoryId !== undefined);
+const [latest, ...recent] = currentPosts;
+const archivePreview = archivePosts.slice(0, 14);
 ---
 
 <Base>
@@ -18,43 +20,67 @@ const recent = rest.slice(0, 14);
         <h1>piatoss<span class="accent">.log</span></h1>
         <p>{SITE.tagline}</p>
       </div>
-      <img class="hero-ledger night-only" src="/bremen/ledger.webp" alt="" aria-hidden="true" />
     </div>
-    <span class="firefly f1 night-only"></span>
-    <span class="firefly f2 night-only"></span>
-    <span class="firefly f3 night-only"></span>
-    <span class="firefly f4 night-only"></span>
   </section>
 
-  {
-    latest && (
-      <a class="featured" href={`/posts/${latest.id}/`}>
-        <p class="featured-label">가장 최근의 기록</p>
-        <h2 class="featured-title">{latest.data.title}</h2>
-        {latest.data.description && <p class="featured-desc">{latest.data.description}</p>}
-        <p class="featured-meta">
-          {dateKorean(latest.data.date)} · {mainCategory(latest.data.category)} · 약{" "}
-          {readingMinutes(latest.body)}분
-        </p>
-      </a>
-    )
-  }
-
-  <p class="section-label">지난 기록</p>
-  <ul class="post-list">
+  <section class="current-section" aria-labelledby="current-heading">
+    <header class="current-section-header">
+      <p class="section-label" id="current-heading">최근에 쓴 글</p>
+      <a href="/writing">새 글 모두 보기 →</a>
+    </header>
     {
-      recent.map((post) => (
-        <li>
-          <span class="post-date">{dateDot(post.data.date)}</span>
-          <a href={`/posts/${post.id}/`}>{post.data.title}</a>
-          <a class="post-cat" href={`/categories/${categorySlug(post.data.category)}/`}>
-            {mainCategory(post.data.category)}
-          </a>
-        </li>
-      ))
+      latest && (
+        <a class="featured" href={`/posts/${latest.id}/`}>
+          <p class="featured-label">NEW</p>
+          <h2 class="featured-title">{latest.data.title}</h2>
+          {latest.data.description && <p class="featured-desc">{latest.data.description}</p>}
+          <p class="featured-meta">
+            {dateKorean(latest.data.date)} · {mainCategory(latest.data.category)} · 약{" "}
+            {readingMinutes(latest.body)}분
+          </p>
+        </a>
+      )
     }
-  </ul>
-  <p style="margin-top: 1.4rem;">
-    <a href="/archive">전체 {posts.length}편 아카이브 →</a>
-  </p>
+    {
+      recent.length > 0 && (
+        <ul class="post-list">
+          {recent.map((post) => (
+            <li>
+              <span class="post-date">{dateDot(post.data.date)}</span>
+              <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+              <a class="post-cat" href={`/categories/${categorySlug(post.data.category)}/`}>
+                {mainCategory(post.data.category)}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+
+  <section class="archive-section" aria-labelledby="archive-heading">
+    <header class="archive-section-header">
+      <div>
+        <p class="section-label">티스토리에서 옮긴 글</p>
+        <h2 id="archive-heading">아카이브</h2>
+      </div>
+      <p>2022년부터 쌓인 이전 기록 {archivePosts.length}편</p>
+    </header>
+    <ul class="post-list">
+      {
+        archivePreview.map((post) => (
+          <li>
+            <span class="post-date">{dateDot(post.data.date)}</span>
+            <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+            <a class="post-cat" href={`/categories/${categorySlug(post.data.category)}/`}>
+              {mainCategory(post.data.category)}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="archive-link">
+      <a href="/archive">전체 {archivePosts.length}편 아카이브 →</a>
+    </p>
+  </section>
 </Base>

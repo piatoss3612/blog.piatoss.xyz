@@ -1,0 +1,40 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import { dateKorean, readingMinutes } from "../lib/format";
+import { categorySlug, mainCategory } from "../lib/site";
+
+const posts = (
+  await getCollection("posts", ({ data }) => !data.draft && data.tistoryId === undefined)
+).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<Base title="새로 쓴 글" description="piatoss.log에서 새로 작성한 글만 모아 봅니다.">
+  <section class="hero writing-hero">
+    <h1>새로 쓴 글</h1>
+    <p>이 블로그에서 새로 작성한 글 {posts.length}편.</p>
+  </section>
+
+  <ol class="writing-list">
+    {
+      posts.map((post) => (
+        <li>
+          <article class="writing-card">
+            <div class="writing-meta">
+              <time datetime={post.data.date.toISOString()}>{dateKorean(post.data.date)}</time>
+              <a href={`/categories/${categorySlug(post.data.category)}/`}>
+                {mainCategory(post.data.category)}
+              </a>
+              <span>약 {readingMinutes(post.body)}분</span>
+            </div>
+            <h2><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2>
+            {post.data.description && <p>{post.data.description}</p>}
+            <a class="writing-read" href={`/posts/${post.id}/`} aria-label={`${post.data.title} 읽기`}>
+              글 읽기 →
+            </a>
+          </article>
+        </li>
+      ))
+    }
+  </ol>
+</Base>

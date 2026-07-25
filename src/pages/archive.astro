@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 import { mainCategory, categorySlug } from "../lib/site";
 
-const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
+const posts = (await getCollection("posts", ({ data }) => !data.draft && data.tistoryId !== undefined)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 
@@ -22,7 +22,7 @@ function fmt(d: Date) {
 <Base title="아카이브">
   <section class="hero">
     <h1>아카이브</h1>
-    <p>전체 {posts.length}편 — 티스토리 시절(2022~)의 기록을 포함한다.</p>
+    <p>티스토리에서 옮겨 온 2022년 이후의 기록 {posts.length}편.</p>
   </section>
   {
     [...byYear.entries()].map(([year, yearPosts]) => (

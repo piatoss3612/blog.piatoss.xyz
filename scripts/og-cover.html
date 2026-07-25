@@ -1,60 +1,80 @@
 <!doctype html>
-<!-- OG 커버(1200×630) 소스. 갱신 방법: chrome-headless-shell로 이 파일을
-     --window-size=1200,630 스크린샷 → public/og-cover.jpg (sips로 jpeg 변환). -->
-<html>
-<head>
-<meta charset="utf-8" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
-<style>
-  * { margin: 0; box-sizing: border-box; }
-  body { width: 1200px; height: 630px; overflow: hidden; font-family: "Outfit", "Pretendard Variable", sans-serif; }
-  .card {
-    position: relative;
-    width: 1200px; height: 630px;
-    background: url("../public/bremen/sky-pixel.webp") center 30% / cover no-repeat;
-  }
-  .road {
-    position: absolute; left: 0; right: 0; bottom: 0; height: 150px;
-    background: url("../public/bremen/lantern-road.webp") center 30% / cover no-repeat;
-  }
-  .walker {
-    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-    width: 46px; image-rendering: pixelated;
-  }
-  .ledger {
-    position: absolute; right: 84px; top: 118px; width: 330px;
-    filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.55));
-  }
-  .lantern {
-    position: absolute; right: 52px; top: 0; width: 56px;
-    filter: drop-shadow(0 0 18px rgba(224, 165, 94, 0.45));
-  }
-  .text { position: absolute; left: 84px; top: 200px; }
-  .wordmark {
-    font-size: 88px; font-weight: 800; letter-spacing: -0.01em;
-    color: oklch(0.9 0.02 80);
-    text-shadow: 0 3px 26px rgba(0, 0, 0, 0.65);
-  }
-  .wordmark .accent { color: oklch(0.72 0.18 58); }
-  .tagline {
-    margin-top: 18px; font-size: 27px; font-weight: 500;
-    color: oklch(0.72 0.03 76);
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
-  }
-</style>
-</head>
-<body>
-  <div class="card">
-    <div class="road"></div>
-    <img class="walker" src="../public/piatoss-squirrel.webp" />
-    <img class="ledger" src="../public/bremen/ledger.webp" />
-    <img class="lantern" src="../public/bremen/lantern.webp" />
-    <div class="text">
-      <div class="wordmark">piatoss<span class="accent">.log</span></div>
-      <div class="tagline">wallets, Zcash, and strange little interfaces — 날것의 기록</div>
-    </div>
-  </div>
-</body>
+<!-- OG 커버(1200×630) 소스. 1200×630으로 캡처해 public/og-cover.jpg로 저장한다. -->
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Diphylleia&family=Outfit:wght@500;600;700;800&family=Noto+Serif+KR:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <style>
+      * { box-sizing: border-box; }
+      html, body { width: 1200px; height: 630px; margin: 0; overflow: hidden; }
+      body {
+        background: #080d12;
+        color: #e9e5dc;
+        font-family: "Outfit", "Pretendard Variable", Pretendard, sans-serif;
+      }
+      .cover {
+        position: relative;
+        isolation: isolate;
+        width: 1200px;
+        height: 630px;
+        display: flex;
+        align-items: flex-end;
+        padding: 72px 76px;
+        overflow: hidden;
+        background: url("../public/dreamcore/hero-banner.webp") 47% center / cover no-repeat;
+      }
+      .cover::before {
+        position: absolute;
+        z-index: -1;
+        inset: 0;
+        content: "";
+        background:
+          linear-gradient(90deg, rgba(4, 8, 12, 0.86) 0%, rgba(4, 8, 12, 0.54) 48%, rgba(4, 8, 12, 0.1) 78%),
+          linear-gradient(0deg, rgba(4, 8, 12, 0.78), transparent 68%);
+      }
+      .copy { max-width: 620px; }
+      h1 {
+        margin: 0;
+        color: #f2eee6;
+        font-family: "Diphylleia", "Noto Serif KR", serif;
+        font-size: 84px;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        line-height: 1;
+        text-shadow: 0 3px 28px rgba(0, 0, 0, 0.8);
+      }
+      h1 span { color: #f0ad63; }
+      p {
+        margin: 24px 0 0;
+        color: #c5cecb;
+        font-size: 25px;
+        font-weight: 500;
+        line-height: 1.5;
+        text-shadow: 0 2px 18px rgba(0, 0, 0, 0.9);
+      }
+      .rule {
+        width: 56px;
+        height: 4px;
+        margin-bottom: 24px;
+        background: #d68c43;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="cover">
+      <section class="copy">
+        <div class="rule"></div>
+        <h1>piatoss<span>.log</span></h1>
+        <p>만들고 부수고 다시 고치는 사람의 기록</p>
+      </section>
+    </main>
+  </body>
 </html>
