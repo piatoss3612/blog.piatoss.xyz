@@ -3,6 +3,16 @@ name: Deploy
 on:
   push:
     branches: [main]
+    # 빌드 입력이 아닌 것들. 여기만 바뀐 푸시는 배포하지 않는다 — 산출물이 같으니까.
+    # scripts/는 일회성 도구(변환·에셋 준비)라 astro build가 읽지 않는다.
+    # 이 목록에 없는 파일이 하나라도 섞이면 워크플로는 정상적으로 돈다.
+    paths-ignore:
+      - "docs/**"
+      - "scripts/**"
+      - "DESIGN.md"
+      - "Makefile"
+      - ".gitignore"
+  # 위 경로만 바꿨는데 재배포가 필요하면 여기서 수동으로 돌린다.
   workflow_dispatch:
 
 permissions:
