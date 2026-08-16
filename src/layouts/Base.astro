@@ -1,7 +1,13 @@
 ---
+import "../styles/fonts.css";
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import { SITE } from "../lib/site";
+// 어느 페이지든 본문에 바로 쓰이는 두 개만 미리 받는다. 라틴은 Outfit, 한글은 Plex KR로
+// 떨어지므로 둘 다 필요하다. 나머지 웨이트는 CSS가 파싱되면서 알아서 따라온다.
+// 해시가 붙은 실제 URL이 필요해서 import로 받는다 — 경로를 문자열로 적으면 캐시가 안 갈린다.
+import outfitBody from "../assets/fonts/outfit-400.woff2";
+import plexBody from "../assets/fonts/plex-kr-400.woff2";
 
 interface Props {
   title?: string;
@@ -32,6 +38,9 @@ const path = Astro.url.pathname;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* 폰트는 crossorigin 없이 preload하면 요청이 두 번 나간다 — 같은 출처라도 그렇다 */}
+    <link rel="preload" href={outfitBody} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={plexBody} as="font" type="font/woff2" crossorigin />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
@@ -54,12 +63,6 @@ const path = Astro.url.pathname;
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
     <ClientRouter />
   </head>
   <body>

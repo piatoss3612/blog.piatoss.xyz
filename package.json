@@ -5,9 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && pagefind --site dist",
+    "build": "node scripts/prep-fonts.mjs --check && astro build && pagefind --site dist",
     "preview": "astro preview",
-    "convert": "node scripts/convert-tistory.mjs"
+    "convert": "node scripts/convert-tistory.mjs",
+    "fonts": "node scripts/prep-fonts.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.0",

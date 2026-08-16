@@ -37,6 +37,17 @@ Astro 5 정적 출력 + Pagefind 검색. UI 프레임워크·CSS 라이브러리
 
 글 이미지는 `public/posts/<id>/img/`에 있고 마크다운에서 절대경로로 참조한다. Astro 이미지 파이프라인 밖이라 `astro.config.mjs`의 `rehypeLazyImages`가 `loading`·`decoding`을 붙인다. 같은 파일의 `rehypeYouTube`는 유튜브 링크만 있는 문단을 임베드로 바꾼다 — `.md`에서 컴포넌트를 못 쓰기 때문이다.
 
+## 웹폰트
+
+자체 호스팅한다. `scripts/prep-fonts.mjs`가 서브셋을 만들어 `src/assets/fonts/`에 넣고, `src/styles/fonts.css`가 `@font-face`로 물린다. **구글 폰트로 되돌리지 말 것** — 이유와 수치는 DESIGN.md에 있다.
+
+- **서브셋 범위가 "지금 사이트에 쓰인 글자"에 정확히 맞춰져 있다.** 새 글에 없던 음절이 나오면 그 글자만 시스템 폰트로 렌더된다. 빌드가 `--check`로 매번 확인해서 빠진 글자를 경고로 뱉는다. 경고가 보이면 `make fonts` 후 같이 커밋한다. 빌드를 세우지는 않는다 — 글자 한둘이 대체 폰트로 나오는 건 배포를 막을 문제가 아니다.
+- **원본 TTF는 옛 UA로 받아야 한다.** 최신 UA를 주면 구글이 한글을 unicode-range로 쪼갠 woff2 조각 100여 개를 주는데 서브셋 원본으로 못 쓴다. 스크립트가 `curl/8.0`을 쓰는 이유다.
+- 원본은 Noto Serif KR 하나가 13.7MB라 `.font-cache/`에 캐시한다(gitignore). 지우면 다시 받을 뿐 문제는 없다.
+- **`fonts.css`의 경로는 상대경로로 둔다.** Vite가 `url()`을 읽어 파일명에 해시를 붙이므로 서브셋을 다시 만들면 캐시가 저절로 갈린다. 절대경로로 적으면 이게 깨진다.
+- `Base.astro`의 preload는 `import`로 받은 해시 URL을 쓰고 `crossorigin`이 붙어 있다. 같은 출처라도 이게 없으면 폰트를 두 번 받는다.
+- 웨이트를 늘리려면 `prep-fonts.mjs`와 `fonts.css` 양쪽을 고쳐야 한다. 지금 있는 여덟 개는 `global.css`가 실제로 쓰는 것뿐이다.
+
 ## 공유 카드 (OG)
 
 글마다 `/og/<id>.jpg`가 빌드 때 만들어진다. **이미지는 저장소에 없다.** 관리 대상은 배경 아트 한 장(`src/assets/og/background.jpg`)과 템플릿 하나(`src/lib/og.ts`)뿐이고, 글을 새로 쓰면 카드도 따라 생긴다.
@@ -53,7 +64,8 @@ Astro 5 정적 출력 + Pagefind 검색. UI 프레임워크·CSS 라이브러리
 
 ```
 make dev      # 개발 서버
-make build    # astro build + pagefind 색인
+make build    # 폰트 커버리지 확인 + astro build + pagefind 색인
+make fonts    # 웹폰트 서브셋 재생성 (빌드가 경고할 때만)
 npm run preview
 ```
 
