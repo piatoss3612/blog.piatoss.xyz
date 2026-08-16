@@ -8,12 +8,5 @@ build:
 	@echo "Building..."
 	@npm run build
 
-# 사용법: make sync did=<blog_distribution_id>
-# distribution id는 piatoss.xyz/terraform에서 `terraform output blog_distribution_id`
-.PHONY: sync
-sync:
-	@echo "Syncing with s3..."
-	@aws s3 sync dist/ s3://blog.piatoss.xyz --delete && aws cloudfront create-invalidation --distribution-id $(did) --paths "/*"
-
-.PHONY: deploy
-deploy: build sync
+# 배포 타깃은 없다. main에 푸시하면 .github/workflows/deploy.yml이 빌드해서 올린다.
+# 로컬에서 결과물을 보려면 make build 후 npm run preview.
