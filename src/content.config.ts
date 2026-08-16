@@ -13,4 +13,15 @@ const posts = defineCollection({
   }),
 });
 
-export const collections = { posts };
+// 조각: 정리해서 내놓는 글이 아니라 정리되기 전의 말.
+// posts와 섞지 않으려고 컬렉션 자체를 분리한다. 제목은 없어도 된다.
+const notes = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/notes" }),
+  schema: z.object({
+    date: z.coerce.date(),
+    title: z.string().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { posts, notes };

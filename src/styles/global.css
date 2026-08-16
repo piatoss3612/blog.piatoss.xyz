@@ -1,27 +1,39 @@
-/* piatoss.xyz의 드림코어/위어드코어 온도만 가져온 단일 야간 테마.
-   블로그의 정보 구조와 읽기 밀도는 유지하고, 큰 장면은 상단 배너와 푸터에만 쓴다. */
+/* piatoss.xyz 디오라마의 야간 숲 팔레트를 그대로 상속한다.
+   세계관: warm off-black + 랜턴 앰버. 블로그는 디오라마가 아니라 "읽는 방"이므로
+   장식은 억제하고 색과 온도만 가져온다. */
 :root {
-  --sl-bg: #080d12;
-  --sl-bg-raised: #0d1419;
-  --sl-bg-soft: #111a1f;
-  --sl-accent: #d68c43;
-  --sl-accent-strong: #f0ad63;
-  --sl-accent-dim: #9e6837;
-  --sl-text: #e9e5dc;
-  --sl-text-muted: #a6afad;
-  --sl-muted: #687471;
-  --sl-card-bg: rgba(15, 23, 27, 0.82);
-  --sl-card-border: rgba(167, 190, 188, 0.28);
-  --sl-card-border-dim: rgba(167, 190, 188, 0.13);
-  --font-sans: "Outfit", "Pretendard Variable", Pretendard, -apple-system, sans-serif;
-  --font-serif: "Noto Serif KR", "Pretendard Variable", Georgia, serif;
-  --font-display: "Diphylleia", "Noto Serif KR", Georgia, serif;
+  --sl-bg: oklch(0.1 0.01 60);
+  --sl-bg-raised: oklch(0.13 0.012 60);
+  --sl-bg-soft: oklch(0.16 0.014 60);
+  --sl-accent: oklch(0.65 0.17 55);
+  --sl-accent-strong: oklch(0.72 0.18 58);
+  --sl-accent-dim: oklch(0.6 0.13 52);
+  --sl-text: oklch(0.88 0.02 80);
+  --sl-text-muted: oklch(0.66 0.025 76);
+  /* 배경이 거의 검정이라 L을 0.6 아래로 내리면 날짜·잔글씨가 WCAG AA(4.5:1)에 미달한다 */
+  --sl-muted: oklch(0.6 0.02 65);
+  --sl-card-bg: rgba(22, 18, 13, 0.78);
+  --sl-card-border: rgba(219, 176, 124, 0.28);
+  --sl-card-border-dim: rgba(219, 176, 124, 0.14);
+  /* Outfit은 라틴 전용이라 한글은 IBM Plex Sans KR로 떨어진다.
+     Plex를 고른 이유: Pretendard보다 속공간이 넓고 획 끝이 부드러운데 700 굵기가 실재한다.
+     본문 강조(<strong>)가 2700곳 넘게 있어서 굵기 하나짜리 폰트는 쓸 수 없다. */
+  --font-sans: "Outfit", "IBM Plex Sans KR", -apple-system, sans-serif;
+  --font-serif: "Noto Serif KR", Georgia, serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --measure: 44rem;
-  --hero-image: url("/dreamcore/hero-banner.webp");
-  --footer-image: url("/dreamcore/footer-road.webp");
-  --row-hover: rgba(90, 132, 132, 0.08);
-  --selection: rgba(214, 140, 67, 0.3);
+  /* 아트 슬롯: 히어로는 픽셀 밤하늘, 푸터는 랜턴길 */
+  --hero-image: url("/bremen/sky-pixel.webp");
+  --hero-pos: center 22%;
+  --footer-image: url("/bremen/lantern-road.webp");
+  --footer-pos: center 28%;
+  --footer-h: clamp(140px, 11.7vw, 260px);
+  --hero-title-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+  --hero-tag-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
+  --lantern-glow: 224, 165, 94;
+  --card-wash: rgba(224, 165, 94, 0.11);
+  --row-hover: rgba(224, 165, 94, 0.045);
+  --selection: rgba(224, 165, 94, 0.3);
 }
 
 ::selection {
@@ -78,6 +90,26 @@ a:hover {
   padding-inline: 1.25rem;
 }
 
+/* 본문 바로가기: 평소엔 화면 밖, 탭으로 포커스되면 들어온다 */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0.5rem;
+  z-index: 20;
+  padding: 0.55rem 0.9rem;
+  transform: translateY(-150%);
+  border: 1px solid var(--sl-card-border);
+  border-radius: 0 0 5px 5px;
+  background: var(--sl-bg-raised);
+  color: var(--sl-text);
+  font-size: 0.85rem;
+  transition: transform 120ms ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 main.shell {
   padding-top: 2.5rem;
   padding-bottom: 6rem;
@@ -88,7 +120,50 @@ main.shell {
   position: relative;
   z-index: 2;
   border-bottom: 1px solid var(--sl-card-border-dim);
-  background: rgba(8, 13, 18, 0.96);
+  background: color-mix(in oklab, var(--sl-bg) 88%, black);
+}
+
+/* 체인 랜턴: 헤더 테두리에 매달려 본문 컬럼 바깥 여백에서 흔들린다 */
+.header-lantern {
+  position: absolute;
+  top: 100%;
+  right: 2.2rem;
+  z-index: 5;
+  width: 42px;
+  height: auto;
+  transform-origin: 50% 0;
+  filter: drop-shadow(0 0 14px rgba(var(--lantern-glow), 0.35));
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .header-lantern {
+    animation: lantern-sway 6s ease-in-out infinite;
+  }
+}
+
+@media (max-width: 66rem) {
+  .header-lantern {
+    display: none;
+  }
+}
+
+@keyframes lantern-sway {
+  0%,
+  100% {
+    transform: rotate(1.6deg);
+    filter: drop-shadow(0 0 12px rgba(var(--lantern-glow), 0.3));
+  }
+  25% {
+    filter: drop-shadow(0 0 20px rgba(var(--lantern-glow), 0.5));
+  }
+  50% {
+    transform: rotate(-1.6deg);
+    filter: drop-shadow(0 0 14px rgba(var(--lantern-glow), 0.35));
+  }
+  75% {
+    filter: drop-shadow(0 0 18px rgba(var(--lantern-glow), 0.45));
+  }
 }
 
 .site-header nav {
@@ -104,10 +179,9 @@ main.shell {
 
 .wordmark {
   color: var(--sl-text);
-  font-family: var(--font-display);
-  font-size: 1.28rem;
-  font-weight: 400;
-  letter-spacing: 0.025em;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   line-height: 1;
 }
 
@@ -128,6 +202,9 @@ main.shell {
 }
 
 .nav-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
   color: var(--sl-text-muted);
   white-space: nowrap;
 }
@@ -137,33 +214,28 @@ main.shell {
   color: var(--sl-accent-strong);
 }
 
-/* Home banner: deliberately shallow. */
+/* 밤의 장부 히어로. 픽셀 밤하늘 위에 제목과 장부를 나란히 둔다.
+   그림을 어두운 그라디언트로 덮지 않는다 — 텍스트는 그림자로만 띄운다. */
 .hero-scene {
   position: relative;
-  isolation: isolate;
-  height: clamp(200px, 16.5vw, 285px);
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: clamp(200px, 16.5vw, 470px);
   overflow: hidden;
   border-bottom: 1px solid var(--sl-card-border-dim);
-  background: var(--hero-image) center 34% / cover no-repeat;
-}
-
-.hero-scene::before {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  content: "";
-  background:
-    linear-gradient(90deg, rgba(4, 8, 12, 0.78) 0%, rgba(4, 8, 12, 0.4) 42%, rgba(4, 8, 12, 0.08) 72%),
-    linear-gradient(0deg, rgba(4, 8, 12, 0.68) 0%, transparent 58%);
+  background: var(--hero-image) var(--hero-pos) / cover no-repeat;
 }
 
 .hero-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
   width: 100%;
   max-width: var(--measure);
   margin: 0 auto;
-  padding: 2.2rem 1.25rem 1.75rem;
+  padding: 3rem 1.25rem 2.3rem;
 }
 
 .hero-text {
@@ -171,14 +243,12 @@ main.shell {
 }
 
 .hero-text h1 {
-  margin: 0 0 0.35rem;
-  color: #f2eee6;
-  font-family: var(--font-display);
-  font-size: clamp(2.1rem, 3.4vw, 2.65rem);
-  font-weight: 400;
-  letter-spacing: 0.015em;
+  margin: 0 0 0.45rem;
+  font-size: 2.3rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   line-height: 1.12;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.7);
+  text-shadow: var(--hero-title-shadow);
 }
 
 .hero-text h1 .accent {
@@ -187,36 +257,127 @@ main.shell {
 
 .hero-text p {
   margin: 0;
-  color: #c5cecb;
-  font-size: 0.98rem;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.88);
+  color: var(--sl-text-muted);
+  text-shadow: var(--hero-tag-shadow);
 }
 
-/* Footer image strip */
+/* 장부: 기록을 남기는 곳이라는 이름값을 하는 오브제 */
+.hero-ledger {
+  flex: none;
+  width: 150px;
+  height: auto;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.55));
+}
+
+/* 반딧불: 히어로와 랜턴길 안에서만, 아주 드물게 */
+.firefly {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: oklch(0.82 0.14 78);
+  box-shadow: 0 0 9px 2px rgba(240, 190, 110, 0.55);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .firefly {
+    animation:
+      firefly-drift 10s ease-in-out infinite,
+      firefly-blink 3.4s ease-in-out infinite;
+  }
+}
+
+.firefly.f1 {
+  left: 16%;
+  top: 44%;
+  animation-delay: 0s, 0.8s;
+}
+
+.firefly.f2 {
+  left: 38%;
+  top: 28%;
+  animation-delay: 2.2s, 0s;
+  animation-duration: 12s, 2.8s;
+}
+
+.firefly.f3 {
+  left: 64%;
+  top: 58%;
+  animation-delay: 4.1s, 1.6s;
+}
+
+.firefly.f4 {
+  left: 85%;
+  top: 24%;
+  animation-delay: 1.2s, 2.3s;
+  animation-duration: 14s, 3.8s;
+}
+
+.firefly.f5 {
+  left: 30%;
+  top: 55%;
+  animation-delay: 3s, 1.1s;
+  animation-duration: 12s, 3.1s;
+}
+
+.firefly.f6 {
+  left: 72%;
+  top: 40%;
+  animation-delay: 0.6s, 2s;
+}
+
+@keyframes firefly-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(16px, -10px);
+  }
+  50% {
+    transform: translate(-8px, -22px);
+  }
+  75% {
+    transform: translate(-18px, 6px);
+  }
+}
+
+@keyframes firefly-blink {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* 랜턴길: 다람쥐가 길 위에 서 있다 */
 .site-footer {
   border-top: 1px solid var(--sl-card-border-dim);
   color: var(--sl-text-muted);
   font-size: 0.9rem;
-  background: #070b0f;
 }
 
 .lantern-road {
   position: relative;
-  height: clamp(150px, 12.5vw, 230px);
-  border-bottom: 1px solid var(--sl-card-border-dim);
-  background: var(--footer-image) center 76% / cover no-repeat;
+  height: var(--footer-h);
+  background: var(--footer-image) var(--footer-pos) / cover no-repeat;
 }
 
-.lantern-road::after {
+.road-walker {
   position: absolute;
-  inset: 0;
-  content: "";
-  background: linear-gradient(0deg, rgba(5, 9, 12, 0.28), transparent 55%);
-  pointer-events: none;
+  bottom: 12px;
+  left: 50%;
+  width: 44px;
+  transform: translateX(-50%);
+  image-rendering: pixelated;
 }
 
 .footer-inner {
-  padding: 1.5rem 1.25rem 2rem;
+  padding: 1.6rem 1.25rem 2.2rem;
   text-align: center;
 }
 
@@ -227,9 +388,6 @@ main.shell {
 
 .site-footer .tagline {
   color: var(--sl-text-muted);
-  font-family: var(--font-display);
-  font-size: 1rem;
-  letter-spacing: 0.035em;
 }
 
 .site-footer .fine {
@@ -390,10 +548,6 @@ main.shell {
   margin-bottom: 1.1rem;
 }
 
-.archive-section-header .section-label {
-  margin-bottom: 0.25rem;
-}
-
 .archive-section-header h2 {
   margin: 0;
   font-family: var(--font-serif);
@@ -442,6 +596,10 @@ main.shell {
 }
 
 .post-list a {
+  /* 아카이브에만 200줄 가까이 깔린다. 줄 높이 그대로면 19px라 손가락으로 짚기 어렵다 */
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
   color: var(--sl-text);
 }
 
@@ -450,7 +608,12 @@ main.shell {
 }
 
 .post-list .post-cat {
+  display: inline-flex;
+  align-items: center;
+  /* 아카이브 목록에만 200개 가까이 깔리는 링크다. 24px 미만이면 손가락으로 못 짚는다 */
+  min-height: 24px;
   margin-left: auto;
+  padding-inline: 0.15rem;
   flex: none;
   color: var(--sl-accent-dim);
   font-size: 0.78rem;
@@ -649,6 +812,100 @@ main.shell {
 .note-back {
   margin-top: 2.4rem;
   font-size: 0.86rem;
+}
+
+/* 소개 */
+.about-hero {
+  margin-bottom: 2rem;
+}
+
+.about-map {
+  margin: 0 0 2.4rem;
+  padding: 0;
+}
+
+.about-map > div {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--sl-card-border-dim);
+}
+
+.about-map dt {
+  width: 5.5rem;
+  flex: none;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+}
+
+.about-map dt a {
+  color: var(--sl-text);
+}
+
+.about-map dt a:hover {
+  color: var(--sl-accent-strong);
+}
+
+.about-map dd {
+  margin: 0;
+  color: var(--sl-text-muted);
+  font-size: 0.92rem;
+}
+
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.3rem;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* 검색: Pagefind 기본 UI를 사이트 팔레트에 맞춘다 */
+.search-hero {
+  margin-bottom: 1.6rem;
+}
+
+.pagefind-wrap {
+  --pagefind-ui-scale: 0.82;
+  --pagefind-ui-primary: var(--sl-accent-strong);
+  --pagefind-ui-text: var(--sl-text);
+  --pagefind-ui-background: var(--sl-bg);
+  --pagefind-ui-border: var(--sl-card-border-dim);
+  --pagefind-ui-tag: var(--sl-bg-raised);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 5px;
+  --pagefind-ui-font: var(--font-sans);
+}
+
+.pagefind-wrap .pagefind-ui__result-title a {
+  font-family: var(--font-serif);
+}
+
+.pagefind-wrap .pagefind-ui__result-excerpt {
+  color: var(--sl-text-muted);
+}
+
+.pagefind-wrap mark {
+  background: rgba(224, 165, 94, 0.22);
+  color: var(--sl-accent-strong);
+}
+
+/* 유튜브 임베드: URL 한 줄이 rehypeYouTube로 이 구조가 된다 */
+.yt-embed {
+  margin: 1.5rem 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--sl-card-border-dim);
+  border-radius: 5px;
+  background: #000;
+}
+
+.yt-embed iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 
 .notes-empty {
@@ -914,10 +1171,10 @@ main.shell {
 }
 
 .post-end img {
-  width: clamp(78px, 11vw, 96px);
+  width: 52px;
   height: auto;
-  opacity: 0.94;
-  filter: saturate(0.9) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+  opacity: 0.9;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
 }
 
 .post-footer-nav {
@@ -975,6 +1232,12 @@ main.shell {
   text-align: center;
 }
 
+.lost img {
+  width: 96px;
+  margin-bottom: 1rem;
+  image-rendering: pixelated;
+}
+
 .lost h1 {
   font-family: var(--font-serif);
 }
@@ -1009,34 +1272,20 @@ main.shell {
     font-size: 0.78rem;
   }
 
-  .hero-scene {
-    height: 190px;
-    background-position: 43% 54%;
-  }
-
-  .hero-scene::before {
-    background:
-      linear-gradient(90deg, rgba(4, 8, 12, 0.74), rgba(4, 8, 12, 0.18)),
-      linear-gradient(0deg, rgba(4, 8, 12, 0.74), transparent 68%);
-  }
-
   .hero-inner {
-    padding: 1.8rem 1.25rem 1.45rem;
+    padding: 2.2rem 1.25rem 1.8rem;
+  }
+
+  .hero-ledger {
+    width: 92px;
   }
 
   .hero-text h1 {
-    font-size: 2rem;
+    font-size: 1.7rem;
   }
 
   .hero-text p {
-    max-width: 17rem;
-    font-size: 0.9rem;
-    line-height: 1.55;
-  }
-
-  .lantern-road {
-    height: 160px;
-    background-position: 50% 72%;
+    font-size: 0.92rem;
   }
 
   main.shell {

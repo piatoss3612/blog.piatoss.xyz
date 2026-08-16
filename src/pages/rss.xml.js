@@ -3,9 +3,10 @@ import { getCollection } from "astro:content";
 import { SITE } from "../lib/site";
 
 export async function GET(context) {
-  const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
-    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-  );
+  // 티스토리에서 옮긴 글은 피드에 넣지 않는다 — 구독자에게는 이 블로그에서 쓴 글만 나간다.
+  const posts = (
+    await getCollection("posts", ({ data }) => !data.draft && data.tistoryId === undefined)
+  ).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
   return rss({
     title: SITE.title,
     description: SITE.description,

@@ -1,0 +1,33 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { dateDot, dateKorean } from "../../lib/format";
+
+export async function getStaticPaths() {
+  const notes = await getCollection("notes", ({ data }) => !data.draft);
+  return notes.map((note) => ({ params: { id: note.id }, props: { note } }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+const heading = note.data.title ?? dateKorean(note.data.date);
+---
+
+<Base
+  title={heading}
+  description="정리되기 전의 말."
+  ogType="article"
+  publishedTime={note.data.date.toISOString()}
+  noindex
+>
+  <article class="note-single">
+    <header class="note-head">
+      <time datetime={note.data.date.toISOString()}>{dateDot(note.data.date)}</time>
+    </header>
+    {note.data.title && <h1 class="note-title">{note.data.title}</h1>}
+    <div class="prose prose-essay note-body">
+      <Content />
+    </div>
+    <p class="note-back"><a href="/notes">← 조각으로 돌아가기</a></p>
+  </article>
+</Base>

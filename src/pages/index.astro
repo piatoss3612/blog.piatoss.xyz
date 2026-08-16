@@ -10,7 +10,7 @@ const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
 const currentPosts = posts.filter((post) => post.data.tistoryId === undefined);
 const archivePosts = posts.filter((post) => post.data.tistoryId !== undefined);
 const [latest, ...recent] = currentPosts;
-const archivePreview = archivePosts.slice(0, 14);
+const archivePreview = archivePosts.slice(0, 5);
 ---
 
 <Base>
@@ -20,13 +20,18 @@ const archivePreview = archivePosts.slice(0, 14);
         <h1>piatoss<span class="accent">.log</span></h1>
         <p>{SITE.tagline}</p>
       </div>
+      <img class="hero-ledger" src="/bremen/ledger.webp" alt="" aria-hidden="true" />
     </div>
+    <span class="firefly f1"></span>
+    <span class="firefly f2"></span>
+    <span class="firefly f3"></span>
+    <span class="firefly f4"></span>
   </section>
 
   <section class="current-section" aria-labelledby="current-heading">
     <header class="current-section-header">
-      <p class="section-label" id="current-heading">최근에 쓴 글</p>
-      <a href="/writing">새 글 모두 보기 →</a>
+      <p class="section-label" id="current-heading">최근 기록</p>
+      <a href="/writing">기록 모두 보기 →</a>
     </header>
     {
       latest && (
@@ -60,10 +65,7 @@ const archivePreview = archivePosts.slice(0, 14);
 
   <section class="archive-section" aria-labelledby="archive-heading">
     <header class="archive-section-header">
-      <div>
-        <p class="section-label">티스토리에서 옮긴 글</p>
-        <h2 id="archive-heading">아카이브</h2>
-      </div>
+      <h2 id="archive-heading">아카이브</h2>
       <p>2022년부터 쌓인 이전 기록 {archivePosts.length}편</p>
     </header>
     <ul class="post-list">

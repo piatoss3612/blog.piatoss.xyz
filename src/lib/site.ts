@@ -1,10 +1,11 @@
 export const SITE = {
   title: "piatoss.log",
-  tagline: "wallets, Zcash, and strange little interfaces.",
+  tagline: "wallets and strange little interfaces.",
   description:
     "piatoss(rowan)의 기록. 블록체인, 지갑, Zcash, Go — 그리고 만들고 부수면서 겪은 것들.",
   url: "https://blog.piatoss.xyz",
   portfolio: "https://piatoss.xyz",
+  github: "https://github.com/piatoss3612",
 };
 
 // Tistory 카테고리(한글 포함) → URL slug 매핑.

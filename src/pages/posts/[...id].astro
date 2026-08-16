@@ -44,9 +44,11 @@ const jsonLd = JSON.stringify({
   publishedTime={post.data.date.toISOString()}
 >
   <script slot="head" type="application/ld+json" set:html={jsonLd} />
-  <article>
+  {/* data-pagefind-body가 있는 페이지만 색인된다 — 목록·카테고리 페이지는 검색에 안 걸린다 */}
+  <article data-pagefind-body>
     <header class="post-header">
-      <div class="post-meta">
+      {/* 읽는 시간·링크 복사 버튼이 검색 발췌문에 섞이지 않게 색인에서 뺀다 */}
+      <div class="post-meta" data-pagefind-ignore>
         <time datetime={post.data.date.toISOString()}>{dateKorean(post.data.date)}</time>
         {
           post.data.category && (
@@ -63,7 +65,7 @@ const jsonLd = JSON.stringify({
       <Content />
     </div>
     <div class="post-end" role="presentation">
-      <img src="/dreamcore/post-diary.webp" alt="" loading="lazy" />
+      <img src="/bremen/ledger.webp" alt="" loading="lazy" />
     </div>
     <script>
       import mediumZoom from "medium-zoom";
@@ -116,7 +118,7 @@ const jsonLd = JSON.stringify({
         initLinkCopy();
       });
     </script>
-    <nav class="post-footer-nav">
+    <nav class="post-footer-nav" data-pagefind-ignore>
       {
         prev ? (
           <a class="pn-card" href={`/posts/${prev.id}/`}>

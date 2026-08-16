@@ -9,10 +9,10 @@ const posts = (
 ).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<Base title="새로 쓴 글" description="piatoss.log에서 새로 작성한 글만 모아 봅니다.">
+<Base title="기록" description="이 블로그에서 쓴 글.">
   <section class="hero writing-hero">
-    <h1>새로 쓴 글</h1>
-    <p>이 블로그에서 새로 작성한 글 {posts.length}편.</p>
+    <h1>기록</h1>
+    <p>이 블로그에서 쓴 글 {posts.length}편.</p>
   </section>
 
   <ol class="writing-list">
