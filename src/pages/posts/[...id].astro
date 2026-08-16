@@ -24,6 +24,9 @@ const { Content } = await render(post);
 // 에세이는 본문까지 세리프로 — 기술 글은 산세리프 유지
 const isEssay = post.data.category.startsWith("생각 정리");
 
+// 제목이 박힌 전용 공유 카드. src/pages/og/[id].jpg.ts가 빌드 때 만든다.
+const ogImage = `/og/${post.id}.jpg`;
+
 const jsonLd = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -32,7 +35,7 @@ const jsonLd = JSON.stringify({
   datePublished: post.data.date.toISOString(),
   inLanguage: "ko",
   author: { "@type": "Person", name: "piatoss (Rowan)", url: "https://piatoss.xyz" },
-  image: "https://blog.piatoss.xyz/og-cover.jpg",
+  image: new URL(ogImage, "https://blog.piatoss.xyz/").href,
   mainEntityOfPage: `https://blog.piatoss.xyz/posts/${post.id}/`,
 });
 ---
@@ -42,6 +45,7 @@ const jsonLd = JSON.stringify({
   description={post.data.description}
   ogType="article"
   publishedTime={post.data.date.toISOString()}
+  ogImage={ogImage}
 >
   <script slot="head" type="application/ld+json" set:html={jsonLd} />
   {/* data-pagefind-body가 있는 페이지만 색인된다 — 목록·카테고리 페이지는 검색에 안 걸린다 */}

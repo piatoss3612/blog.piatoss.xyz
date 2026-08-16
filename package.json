@@ -12,13 +12,16 @@
   "dependencies": {
     "@astrojs/rss": "^4.0.0",
     "@astrojs/sitemap": "^3.0.0",
+    "@resvg/resvg-js": "^2.6.2",
     "astro": "^5.0.0",
-    "medium-zoom": "^1.1.0"
+    "medium-zoom": "^1.1.0",
+    "satori": "^0.29.0"
   },
   "devDependencies": {
     "cheerio": "^1.0.0",
     "pagefind": "^1.5.2",
     "sharp": "^0.35.3",
+    "subset-font": "^2.5.0",
     "turndown": "^7.2.0",
     "turndown-plugin-gfm": "^1.0.2"
   }

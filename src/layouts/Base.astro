@@ -9,6 +9,8 @@ interface Props {
   ogType?: "website" | "article";
   publishedTime?: string;
   noindex?: boolean;
+  /** 글 페이지는 제목이 박힌 전용 카드를 넘긴다. 나머지는 공통 커버를 쓴다. */
+  ogImage?: string;
 }
 
 const {
@@ -17,10 +19,11 @@ const {
   ogType = "website",
   publishedTime,
   noindex = false,
+  ogImage: ogImagePath = "/og-cover.jpg",
 } = Astro.props;
 const pageTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const canonicalURL = new URL(Astro.url.pathname, SITE.url);
-const ogImage = new URL("/og-cover.jpg", SITE.url);
+const ogImage = new URL(ogImagePath, SITE.url);
 const path = Astro.url.pathname;
 ---
 
