@@ -7,7 +7,6 @@ on:
     # scripts/는 일회성 도구(변환·에셋 준비)라 astro build가 읽지 않는다.
     # 이 목록에 없는 파일이 하나라도 섞이면 워크플로는 정상적으로 돈다.
     paths-ignore:
-      - "docs/**"
       - "scripts/**"
       - "DESIGN.md"
       - "Makefile"
