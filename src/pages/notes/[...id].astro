@@ -1,7 +1,8 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import { dateDot, dateKorean } from "../../lib/format";
+import { dateKorean } from "../../lib/format";
+import { noteDatetime, noteLabel } from "../../lib/notes";
 
 export async function getStaticPaths() {
   const notes = await getCollection("notes", ({ data }) => !data.draft);
@@ -10,19 +11,25 @@ export async function getStaticPaths() {
 
 const { note } = Astro.props;
 const { Content } = await render(note);
-const heading = note.data.title ?? dateKorean(note.data.date);
+
+// 제목 없는 조각은 날짜가 제목 노릇을 한다. 같은 날 여러 개를 올리면 그것만으로는
+// 서로 구분되지 않아서 시각까지 붙인다.
+const stamp = note.data.time
+  ? `${dateKorean(note.data.date)} ${note.data.time}`
+  : dateKorean(note.data.date);
+const heading = note.data.title ?? stamp;
 ---
 
 <Base
   title={heading}
   description="정리되기 전의 말."
   ogType="article"
-  publishedTime={note.data.date.toISOString()}
+  publishedTime={noteDatetime(note)}
   noindex
 >
   <article class="note-single">
     <header class="note-head">
-      <time datetime={note.data.date.toISOString()}>{dateDot(note.data.date)}</time>
+      <time datetime={noteDatetime(note)}>{noteLabel(note)}</time>
     </header>
     {note.data.title && <h1 class="note-title">{note.data.title}</h1>}
     <div class="prose prose-essay note-body">

@@ -619,7 +619,9 @@ main.shell {
   font-size: 0.78rem;
 }
 
-.year-heading {
+/* 아카이브의 연도 헤딩과 조각의 날짜 헤딩은 같은 역할이라 같은 모양을 쓴다 */
+.year-heading,
+.notes-day-heading {
   display: flex;
   align-items: center;
   gap: 0.8rem;
@@ -630,7 +632,8 @@ main.shell {
   font-weight: 700;
 }
 
-.year-heading::after {
+.year-heading::after,
+.notes-day-heading::after {
   height: 1px;
   flex: 1;
   content: "";
@@ -746,6 +749,11 @@ main.shell {
 /* Notes: 정리되기 전의 말. 목록에서 전문을 보여 주되 항목마다 permalink를 둔다. */
 .notes-hero {
   margin-bottom: 1.8rem;
+}
+
+/* 첫 날짜 헤딩은 히어로 바로 아래라 위 여백을 덜어낸다 */
+.notes-day:first-of-type .notes-day-heading {
+  margin-top: 0;
 }
 
 .notes-stream {

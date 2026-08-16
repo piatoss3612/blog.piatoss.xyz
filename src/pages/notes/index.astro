@@ -2,14 +2,17 @@
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import { dateDot } from "../../lib/format";
+import { groupByDay, noteDatetime, noteLabel } from "../../lib/notes";
 
-const notes = (await getCollection("notes", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+const days = groupByDay(await getCollection("notes", ({ data }) => !data.draft));
 
 // 목록에서 전문을 보여 주는 구조라 각 항목을 미리 렌더해 둔다.
-const entries = await Promise.all(
-  notes.map(async (note) => ({ note, Content: (await render(note)).Content })),
+const rendered = new Map(
+  await Promise.all(
+    days
+      .flatMap((day) => day.notes)
+      .map(async (note) => [note.id, (await render(note)).Content] as const),
+  ),
 );
 ---
 
@@ -19,29 +22,45 @@ const entries = await Promise.all(
   </section>
 
   {
-    entries.length > 0 ? (
-      <ol class="notes-stream">
-        {entries.map(({ note, Content }) => (
-          <li>
-            <article class="note-entry" id={note.id}>
-              <header class="note-head">
-                <time datetime={note.data.date.toISOString()}>{dateDot(note.data.date)}</time>
-                <a
-                  class="note-permalink"
-                  href={`/notes/${note.id}/`}
-                  aria-label={`${dateDot(note.data.date)} 조각 따로 보기`}
-                >
-                  #
-                </a>
-              </header>
-              {note.data.title && <h2 class="note-title">{note.data.title}</h2>}
-              <div class="prose prose-essay note-body">
-                <Content />
-              </div>
-            </article>
-          </li>
-        ))}
-      </ol>
+    days.length > 0 ? (
+      days.map((day) => (
+        <section class="notes-day">
+          {/* 날짜는 하루에 한 번만. 같은 날 조각들은 이 아래로 들어간다 */}
+          <h2 class="notes-day-heading">
+            <time datetime={day.key}>{dateDot(day.date)}</time>
+          </h2>
+          <ol class="notes-stream">
+            {day.notes.map((note) => {
+              const Content = rendered.get(note.id)!;
+              return (
+                <li>
+                  <article class="note-entry" id={note.id}>
+                    <header class="note-head">
+                      {/* 시각이 없으면 자리를 비워 둔다. 없다고 굳이 적을 일은 아니다 */}
+                      {note.data.time ? (
+                        <time datetime={noteDatetime(note)}>{note.data.time}</time>
+                      ) : (
+                        <span />
+                      )}
+                      <a
+                        class="note-permalink"
+                        href={`/notes/${note.id}/`}
+                        aria-label={`${noteLabel(note)} 조각 따로 보기`}
+                      >
+                        #
+                      </a>
+                    </header>
+                    {note.data.title && <h3 class="note-title">{note.data.title}</h3>}
+                    <div class="prose prose-essay note-body">
+                      <Content />
+                    </div>
+                  </article>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))
     ) : (
       <p class="notes-empty">아직 없음.</p>
     )
