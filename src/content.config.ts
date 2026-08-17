@@ -30,6 +30,13 @@ const notes = defineCollection({
       .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "time은 HH:MM (한국 시간)이어야 한다")
       .optional(),
     title: z.string().optional(),
+    // 발췌 조각의 출처. 이 필드가 있으면 본문을 내 말이 아니라 옮겨 적은 말로 렌더한다.
+    // 출처를 본문에 손으로 적지 않는 이유: 목록과 단독 페이지에서 모양이 갈리고,
+    // 나중에 책별로 모으려 할 때 본문에서 다시 긁어내야 한다.
+    source: z.string().optional(),
+    // 발췌에 덧붙이는 내 말. 옮긴 말과 섞이면 누가 한 말인지 흐려지므로 본문 밖에 둔다.
+    // 프런트매터라 마크다운은 태우지 않는다. 문단은 빈 줄로만 가른다.
+    comment: z.string().optional(),
     draft: z.boolean().default(false),
   }),
 });

@@ -32,6 +32,11 @@ export function noteDatetime(note: Note): string {
   return note.data.time ? `${day}T${note.data.time}:00+09:00` : day;
 }
 
+/** 주석 문단. 프런트매터 문자열이라 마크다운을 태우지 않고 빈 줄로만 나눈다. */
+export function commentParagraphs(note: Note): string[] {
+  return note.data.comment?.trim().split(/\n\s*\n/) ?? [];
+}
+
 /** 사람이 읽는 식별자. 같은 날 조각이 여럿일 때 서로 구분되어야 해서 시각을 붙인다. */
 export function noteLabel(note: Note): string {
   const day = dateDot(note.data.date);

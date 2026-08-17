@@ -813,6 +813,68 @@ main.shell {
   margin-top: 0.55rem;
 }
 
+/* 발췌(source가 있는 조각): 옮겨 적은 말이라는 걸 색이 아니라 형태로 알린다.
+   여는 따옴표를 여백에 걸어 두고 본문을 들여쓰면 책에서 옮겨 온 한 구석처럼 읽힌다.
+   카드나 배경으로 감싸지 않는 이유는 조각 목록이 카드 나열이 아니라 흐름이기 때문이다. */
+.note-excerpt {
+  position: relative;
+  padding-left: 1.75rem;
+}
+
+/* 따옴표는 순전히 장식이라 텍스트로 넣지 않는다 — 낭독기가 "따옴표"를 읽게 된다 */
+.note-excerpt::before {
+  position: absolute;
+  top: -0.08em;
+  left: -0.06em;
+  content: "\201C";
+  color: var(--sl-accent-dim);
+  font-family: var(--font-serif);
+  font-size: 2.3rem;
+  line-height: 1;
+}
+
+.note-source {
+  margin: 1.15rem 0 0;
+  padding-left: 1.75rem;
+  color: var(--sl-text-muted);
+  font-size: 0.85rem;
+}
+
+/* 짧은 선. 발췌가 끝나고 출처가 시작된다는 것만 알리면 되니 본문 폭까지 긋지 않는다 */
+.note-source::before {
+  display: block;
+  width: 2.2rem;
+  height: 1px;
+  margin-bottom: 0.75rem;
+  background: var(--sl-card-border);
+  content: "";
+}
+
+/* 한글 서체에는 진짜 기울임체가 없어서 브라우저가 억지로 기울인다. 획이 무너지므로 세운다 */
+.note-source cite {
+  font-family: var(--font-serif);
+  font-style: normal;
+}
+
+/* 발췌에 덧붙이는 내 말. 옮긴 말과 갈라 보이도록 서체와 들여쓰기를 함께 바꾼다.
+   발췌는 세리프에 들여쓰기, 주석은 산세리프에 왼쪽 정렬이다. 색만으로는 구분이 약하고
+   따옴표나 상자를 하나 더 두면 조각 목록이 장식으로 채워진다. */
+.note-comment {
+  margin-top: 1.6rem;
+  color: var(--sl-text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  line-height: 1.8;
+}
+
+.note-comment p {
+  margin: 0;
+}
+
+.note-comment p + p {
+  margin-top: 0.75rem;
+}
+
 .note-single {
   padding-top: 0.4rem;
 }
@@ -1362,6 +1424,16 @@ main.shell {
 
   .pn-next {
     text-align: left;
+  }
+
+  /* 좁은 화면에서 발췌 들여쓰기가 읽기 폭을 먹지 않게 덜어낸다 */
+  .note-excerpt,
+  .note-source {
+    padding-left: 1.15rem;
+  }
+
+  .note-excerpt::before {
+    font-size: 1.9rem;
   }
 }
 
