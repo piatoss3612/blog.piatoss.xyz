@@ -13,5 +13,11 @@ build:
 fonts:
 	@npm run fonts
 
+# public/에 넣은 png를 webp로 바꾸고 원본을 지운다(파비콘은 제외).
+# 경로를 주면 그 안만 훑는다: make webp SRC=public/notes
+.PHONY: webp
+webp:
+	@npm run webp -- $(SRC)
+
 # 배포 타깃은 없다. main에 푸시하면 .github/workflows/deploy.yml이 빌드해서 올린다.
 # 로컬에서 결과물을 보려면 make build 후 npm run preview.

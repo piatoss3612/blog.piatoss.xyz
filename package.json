@@ -8,7 +8,8 @@
     "build": "node scripts/prep-fonts.mjs --check && astro build && pagefind --site dist",
     "preview": "astro preview",
     "convert": "node scripts/convert-tistory.mjs",
-    "fonts": "node scripts/prep-fonts.mjs"
+    "fonts": "node scripts/prep-fonts.mjs",
+    "webp": "node scripts/to-webp.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.0",
