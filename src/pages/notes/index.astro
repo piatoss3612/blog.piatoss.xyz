@@ -2,7 +2,7 @@
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import { dateDot } from "../../lib/format";
-import { commentParagraphs, groupByDay, noteDatetime, noteLabel } from "../../lib/notes";
+import { citation, commentParagraphs, groupByDay, noteDatetime, noteLabel } from "../../lib/notes";
 
 const days = groupByDay(await getCollection("notes", ({ data }) => !data.draft));
 
@@ -61,7 +61,7 @@ const rendered = new Map(
                     </div>
                     {note.data.source && (
                       <p class="note-source">
-                        <cite>{note.data.source}</cite>
+                        <cite>{citation(note.data.source)}</cite>
                       </p>
                     )}
                     {note.data.comment && (

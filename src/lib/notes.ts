@@ -32,6 +32,27 @@ export function noteDatetime(note: Note): string {
   return note.data.time ? `${day}T${note.data.time}:00+09:00` : day;
 }
 
+type Source = NonNullable<Note["data"]["source"]>;
+
+/**
+ * 출처 한 줄. 단행본은 겹낫표『』, 그 안의 한 편은 홑낫표「」다.
+ * 손으로 치면 어긋나고 어긋난 건 목록에서 바로 티가 나므로 여기서만 붙인다.
+ */
+export function citation(source: Source): string {
+  const work = source.work ? `「${source.work}」, ` : "";
+  const translator = source.translator ? ` (${source.translator} 옮김)` : "";
+  return `${source.author}, ${work}『${source.book}』${translator}`;
+}
+
+/**
+ * 탭과 공유 링크에 뜨는 이름. 발췌는 날짜만 보여 주면 무엇을 옮긴 건지 알 수 없다.
+ * 화면에는 제목으로 띄우지 않는다 — 출처는 인용 아래에 오는 게 책의 모양이다.
+ */
+export function sourceTitle(source: Source): string {
+  const work = source.work ? `「${source.work}」` : `『${source.book}』`;
+  return `${work} — ${source.author}`;
+}
+
 /** 주석 문단. 프런트매터 문자열이라 마크다운을 태우지 않고 빈 줄로만 나눈다. */
 export function commentParagraphs(note: Note): string[] {
   return note.data.comment?.trim().split(/\n\s*\n/) ?? [];

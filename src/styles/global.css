@@ -823,26 +823,61 @@ main.shell {
 /* 발췌(source가 있는 조각): 옮겨 적은 말이라는 걸 색이 아니라 형태로 알린다.
    여는 따옴표를 여백에 걸어 두고 본문을 들여쓰면 책에서 옮겨 온 한 구석처럼 읽힌다.
    카드나 배경으로 감싸지 않는 이유는 조각 목록이 카드 나열이 아니라 흐름이기 때문이다. */
-.note-excerpt {
-  position: relative;
-  padding-left: 1.75rem;
+/* 발췌의 왼쪽 축. 본문과 출처 줄이 같은 선에 서야 해서 한군데서 잡는다 */
+.note-entry,
+.note-single {
+  --excerpt-indent: 1.75rem;
+  --excerpt-quote: 2.3rem;
 }
 
-/* 따옴표는 순전히 장식이라 텍스트로 넣지 않는다 — 낭독기가 "따옴표"를 읽게 된다 */
-.note-excerpt::before {
+.note-excerpt {
+  position: relative;
+  padding-left: var(--excerpt-indent);
+}
+
+/* 여는 따옴표는 블록에 하나가 아니라 대목마다 붙는다. 여백에 따옴표가 세로로 쌓이는
+   것만으로 "여기부터 또 옮긴 말"이 읽히고, 이어지는 문단에는 붙지 않으니 한 대목 안의
+   문단 나눔과도 헷갈리지 않는다. 가운데 기호로 가르지 않는 이유는 그게 조각과 조각
+   사이 여백보다 세게 보여서 위계가 뒤집히기 때문이다.
+   따옴표는 순전히 장식이라 텍스트로 넣지 않는다 — 낭독기가 "따옴표"를 읽게 된다 */
+.note-excerpt::before,
+.note-excerpt hr + p::before {
   position: absolute;
   top: -0.08em;
   left: -0.06em;
   content: "\201C";
   color: var(--sl-accent-dim);
   font-family: var(--font-serif);
-  font-size: 2.3rem;
+  font-size: var(--excerpt-quote);
   line-height: 1;
+}
+
+.note-excerpt hr + p {
+  position: relative;
+}
+
+/* 이쪽 기준은 블록이 아니라 문단이라 들여쓴 만큼 도로 빼야 첫 따옴표와 같은 축에 선다 */
+.note-excerpt hr + p::before {
+  left: calc(-1 * var(--excerpt-indent) - 0.06em);
+}
+
+/* 발췌 안의 `---`는 자리만 만들고 아무것도 그리지 않는다. 본문 규칙의 `· · ·`는 글 안의
+   장면 전환 표시라, 여기서 같이 쓰면 한 기호가 두 가지를 뜻하게 된다.
+   `.prose`를 같이 거는 건 `.prose hr`가 이 파일 아래쪽에 있어서다 — 클래스 하나로는
+   특정도가 같아 뒤에 오는 쪽이 이긴다. 떼면 여백이 조용히 본문 기본값으로 돌아간다 */
+.prose.note-excerpt hr {
+  /* 문단 여백(0.9em)보다 조금만 넓다. 대목을 가르는 건 따옴표라 여백까지 벌리면
+     한 조각 안에 구멍이 뚫린다 — 본문은 line-height 1.95라 이미 공기가 많다 */
+  margin: 1.2em 0;
+}
+
+.note-excerpt hr::after {
+  content: none;
 }
 
 .note-source {
   margin: 1.15rem 0 0;
-  padding-left: 1.75rem;
+  padding-left: var(--excerpt-indent);
   color: var(--sl-text-muted);
   font-size: 0.85rem;
 }
@@ -1434,13 +1469,10 @@ main.shell {
   }
 
   /* 좁은 화면에서 발췌 들여쓰기가 읽기 폭을 먹지 않게 덜어낸다 */
-  .note-excerpt,
-  .note-source {
-    padding-left: 1.15rem;
-  }
-
-  .note-excerpt::before {
-    font-size: 1.9rem;
+  .note-entry,
+  .note-single {
+    --excerpt-indent: 1.15rem;
+    --excerpt-quote: 1.9rem;
   }
 }
 

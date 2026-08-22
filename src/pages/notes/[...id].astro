@@ -2,7 +2,7 @@
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import { dateKorean } from "../../lib/format";
-import { commentParagraphs, noteDatetime, noteLabel } from "../../lib/notes";
+import { citation, commentParagraphs, noteDatetime, noteLabel, sourceTitle } from "../../lib/notes";
 
 export async function getStaticPaths() {
   const notes = await getCollection("notes", ({ data }) => !data.draft);
@@ -12,16 +12,17 @@ export async function getStaticPaths() {
 const { note } = Astro.props;
 const { Content } = await render(note);
 
-// 제목 없는 조각은 날짜가 제목 노릇을 한다. 같은 날 여러 개를 올리면 그것만으로는
-// 서로 구분되지 않아서 시각까지 붙인다.
+// 문서 제목(탭·공유 카드)일 뿐 화면에 뜨는 제목이 아니다.
+// 제목 없는 조각은 날짜가 그 노릇을 한다. 같은 날 여러 개를 올리면 그것만으로는
+// 서로 구분되지 않아서 시각까지 붙인다. 발췌는 날짜 대신 출처를 쓴다.
 const stamp = note.data.time
   ? `${dateKorean(note.data.date)} ${note.data.time}`
   : dateKorean(note.data.date);
-const heading = note.data.title ?? stamp;
+const docTitle = note.data.title ?? (note.data.source ? sourceTitle(note.data.source) : stamp);
 ---
 
 <Base
-  title={heading}
+  title={docTitle}
   description="정리되기 전의 말."
   ogType="article"
   publishedTime={noteDatetime(note)}
@@ -38,7 +39,7 @@ const heading = note.data.title ?? stamp;
     {
       note.data.source && (
         <p class="note-source">
-          <cite>{note.data.source}</cite>
+          <cite>{citation(note.data.source)}</cite>
         </p>
       )
     }
