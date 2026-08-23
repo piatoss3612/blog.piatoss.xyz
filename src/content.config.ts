@@ -6,9 +6,19 @@ const posts = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
+    // 고쳐 쓴 날. sitemap의 lastmod와 article:modified_time이 이 값을 쓴다.
+    // date와 마찬가지로 KST로 적는다(시각까지 적을 거면 +09:00 오프셋을 붙일 것).
+    updated: z.coerce.date().optional(),
     category: z.string().default(""),
     description: z.string().default(""),
     tistoryId: z.number().optional(),
+    // 이어 읽는 묶음. 이 필드가 있으면 이전·다음 탐색이 날짜가 아니라 이 순서를 탄다.
+    //
+    // 이름 문자열 하나가 아니라 객체인 이유: 순서를 제목 접두사("[Ethernaut] 12.")에서
+    // 도로 파싱하면 번호가 없는 시리즈(밑바닥부터 시작하는 비트코인)를 못 세우고,
+    // 제목을 고치는 순간 순서가 따라 바뀐다. order는 정렬 키일 뿐이라 0부터 시작해도 되고
+    // 중간이 비어도 된다 — 화면에 내보내는 "몇 번째"는 정렬한 자리에서 만든다.
+    series: z.object({ name: z.string(), order: z.number() }).strict().optional(),
     draft: z.boolean().default(false),
   }),
 });

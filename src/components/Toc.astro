@@ -1,0 +1,50 @@
+---
+// 목차. 마크업은 하나고 배치만 CSS로 갈아 끼운다 — 좁은 화면에서는 제목 아래 접힌 <details>,
+// 80rem부터는 본문 왼쪽 여백의 sticky 레일이다. 목록을 두 벌 렌더하면 스크린리더가 같은 절을 두 번 읽는다.
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+// h4까지 넣으면 목차가 세 단계로 접힌다. 44rem 글에서는 h2·h3만으로 충분히 짚인다
+type Section = { heading: MarkdownHeading; children: MarkdownHeading[] };
+const sections: Section[] = [];
+for (const heading of headings) {
+  if (heading.depth === 2) {
+    sections.push({ heading, children: [] });
+  } else if (heading.depth === 3) {
+    // h2보다 h3가 먼저 나오는 글이 있다. 그때는 버리지 않고 최상위로 올린다
+    const last = sections[sections.length - 1];
+    if (last) last.children.push(heading);
+    else sections.push({ heading, children: [] });
+  }
+}
+---
+
+{/* 절 제목이 검색 발췌문에 통째로 섞이지 않게 색인에서 뺀다 */}
+<nav class="toc" aria-label="목차" data-pagefind-ignore>
+  <details>
+    <summary>목차</summary>
+    <ol>
+      {
+        sections.map(({ heading, children }) => (
+          <li>
+            <a href={`#${heading.slug}`}>{heading.text}</a>
+            {children.length > 0 && (
+              <ol>
+                {children.map((child) => (
+                  <li>
+                    <a href={`#${child.slug}`}>{child.text}</a>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </details>
+</nav>

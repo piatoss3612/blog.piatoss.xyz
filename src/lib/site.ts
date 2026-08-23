@@ -33,3 +33,10 @@ export function mainCategory(category: string): string {
 export function categorySlug(category: string): string {
   return CATEGORY_SLUGS[mainCategory(category)] ?? "etc";
 }
+
+// 카테고리 페이지에서는 제목이 이미 상위 분류다. 행마다 그걸 되풀이하면 200줄이 같은 말을 한다.
+// 하위 분류가 없는 글(예: "Solidity")은 빈 문자열을 돌려주고 호출부가 칩을 생략한다.
+export function subCategory(category: string): string {
+  const rest = (category || "").split("/").slice(1).join("/").trim();
+  return rest;
+}

@@ -1,33 +1,82 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import { categorySlug } from "../../lib/site";
-import { dateKorean, readingMinutes } from "../../lib/format";
+import Toc from "../../components/Toc.astro";
+import { categorySlug, mainCategory } from "../../lib/site";
+import { dateKorean, dayKey, readingMinutes } from "../../lib/format";
 
 export async function getStaticPaths() {
   const posts = await getCollection("posts", ({ data }) => !data.draft);
+
+  // 시리즈에 속한 글은 order로 줄을 세운다. 정렬을 글마다 다시 하지 않으려고 한 번만 만든다
+  const seriesLists = new Map<string, typeof posts>();
+  for (const candidate of posts) {
+    const name = candidate.data.series?.name;
+    if (!name) continue;
+    const list = seriesLists.get(name);
+    if (list) list.push(candidate);
+    else seriesLists.set(name, [candidate]);
+  }
+  for (const list of seriesLists.values()) {
+    list.sort((a, b) => a.data.series!.order - b.data.series!.order);
+  }
+
   return posts.map((post) => {
+    // 시리즈 안에서는 이전·다음이 곧 앞 편·뒤 편이다. 첫 편 앞과 마지막 편 뒤는 비운다 —
+    // 시리즈 밖으로 나가는 순간 "다음 편"이라는 말이 거짓이 된다
+    const seriesList = post.data.series ? seriesLists.get(post.data.series.name)! : null;
     const isArchive = post.data.tistoryId !== undefined;
-    const siblings = posts
-      .filter((candidate) => (candidate.data.tistoryId !== undefined) === isArchive)
-      .sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+    const siblings =
+      seriesList ??
+      posts
+        .filter((candidate) => (candidate.data.tistoryId !== undefined) === isArchive)
+        .sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
     const index = siblings.findIndex((candidate) => candidate.id === post.id);
     return {
       params: { id: post.id },
-      props: { post, prev: siblings[index - 1] ?? null, next: siblings[index + 1] ?? null },
+      props: {
+        post,
+        prev: siblings[index - 1] ?? null,
+        next: siblings[index + 1] ?? null,
+        seriesList,
+        seriesIndex: seriesList ? index : -1,
+      },
     };
   });
 }
 
-const { post, prev, next } = Astro.props;
-const { Content } = await render(post);
-// 이전·다음은 이관분끼리, 고유 글끼리만 이어지므로 라벨도 그 이름을 따른다
-const navNoun = post.data.tistoryId !== undefined ? "아카이브" : "기록";
+const { post, prev, next, seriesList, seriesIndex } = Astro.props;
+const { Content, headings } = await render(post);
+// 절이 세 개 이하인 글은 목차가 제목을 되풀이하는 데 그친다. h2 네 개부터 길잡이 구실을 한다
+const showToc = headings.filter((heading) => heading.depth === 2).length >= 4;
+// 이전·다음은 이관분끼리, 고유 글끼리만 이어지므로 라벨도 그 이름을 따른다.
+// 시리즈 글은 이웃이 곧 앞뒤 편이라 "편"으로 부른다
+const navNoun = seriesList ? "편" : post.data.tistoryId !== undefined ? "아카이브" : "기록";
+
+// 시리즈 목록에 제목을 그대로 늘어놓으면 시리즈 이름이 줄마다 되풀이된다
+// ("[Ethernaut] 12. Privacy" 열두 줄). 앞머리를 떼고 그 편의 이름만 남긴다.
+function seriesLabel(title: string, name: string) {
+  let rest = title.replace(/^\[[^\]]+\]\s*/, "");
+  if (rest.startsWith(name)) rest = rest.slice(name.length);
+  rest = rest.replace(/^\s*[-–—:·]?\s*/, "");
+  // 시리즈 이름과 제목이 같은 편(시리즈 첫 글에 흔하다)은 뗄 게 없다
+  return rest || title;
+}
 // 에세이는 본문까지 세리프로 — 기술 글은 산세리프 유지
 const isEssay = post.data.category.startsWith("생각 정리");
 
 // 제목이 박힌 전용 공유 카드. src/pages/og/[id].jpg.ts가 빌드 때 만든다.
 const ogImage = `/og/${post.id}.jpg`;
+
+// 검색 필터·구조화 데이터가 함께 쓰는 값들.
+// category는 "블록체인/이더리움"처럼 경로로 적혀 있다 — 필터와 상위 분류는 앞 조각만,
+// keywords는 조각 전부를 쓴다.
+const categoryPath = post.data.category
+  .split("/")
+  .map((part) => part.trim())
+  .filter(Boolean);
+// 고쳐 쓴 날이 없으면 쓴 날이 곧 마지막 수정일이다.
+const modified = post.data.updated ?? post.data.date;
 
 const jsonLd = JSON.stringify({
   "@context": "https://schema.org",
@@ -35,10 +84,12 @@ const jsonLd = JSON.stringify({
   headline: post.data.title,
   description: post.data.description,
   datePublished: post.data.date.toISOString(),
+  dateModified: modified.toISOString(),
   inLanguage: "ko",
   author: { "@type": "Person", name: "piatoss (Rowan)", url: "https://piatoss.xyz" },
   image: new URL(ogImage, "https://blog.piatoss.xyz/").href,
   mainEntityOfPage: `https://blog.piatoss.xyz/posts/${post.id}/`,
+  ...(post.data.category ? { articleSection: post.data.category, keywords: categoryPath } : {}),
 });
 ---
 
@@ -50,9 +101,19 @@ const jsonLd = JSON.stringify({
   ogImage={ogImage}
 >
   <script slot="head" type="application/ld+json" set:html={jsonLd} />
-  {/* data-pagefind-body가 있는 페이지만 색인된다 — 목록·카테고리 페이지는 검색에 안 걸린다 */}
-  <article data-pagefind-body>
-    <header class="post-header">
+  {post.data.updated && (
+    <meta slot="head" property="article:modified_time" content={modified.toISOString()} />
+  )}
+  {/*
+    data-pagefind-body가 있는 페이지만 색인된다 — 목록·카테고리 페이지는 검색에 안 걸린다.
+    필터는 한 요소에 하나씩만 걸 수 있다. 콤마로 이어 적으면 뒷부분이 앞 필터의 값에
+    통째로 들어간다(category="AI, year:2026"). 그래서 연도는 날짜가 있는 헤더에 건다.
+  */}
+  <article
+    class:list={["post", { "post-has-toc": showToc }]}
+    data-pagefind-filter={`category:${mainCategory(post.data.category)}`}
+  >
+    <header class="post-header" data-pagefind-filter={`year:${dayKey(post.data.date).slice(0, 4)}`}>
       {/* 읽는 시간·링크 복사 버튼이 검색 발췌문에 섞이지 않게 색인에서 뺀다 */}
       <div class="post-meta" data-pagefind-ignore>
         <time datetime={post.data.date.toISOString()}>{dateKorean(post.data.date)}</time>
@@ -64,10 +125,36 @@ const jsonLd = JSON.stringify({
         <span>약 {readingMinutes(post.body)}분</span>
         <button class="copy-link" type="button" data-copy-link>링크 복사</button>
       </div>
-      <h1>{post.data.title}</h1>
+      <h1 data-pagefind-meta="title">{post.data.title}</h1>
+      {
+        seriesList && (
+          /* 이 글이 몇 번째 편인지부터 알린다. 접힌 채로 두고, 펼치면 전 편 목록이다.
+             시리즈 전용 페이지는 만들지 않는다 — 목록이 있어야 할 자리는 여기다 */
+          <details class="series" data-pagefind-ignore>
+            <summary>
+              {post.data.series!.name} · {seriesIndex + 1}/{seriesList.length}
+            </summary>
+            <ol>
+              {seriesList.map((item, i) => (
+                <li>
+                  {i === seriesIndex ? (
+                    <span aria-current="page">{seriesLabel(item.data.title, post.data.series!.name)}</span>
+                  ) : (
+                    <a href={`/posts/${item.id}/`}>
+                      {seriesLabel(item.data.title, post.data.series!.name)}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </details>
+        )
+      }
       <div class="post-rule" role="presentation"></div>
     </header>
-    <div class:list={["prose", { "prose-essay": isEssay }]}>
+    {showToc && <Toc headings={headings} />}
+    {/* 색인 범위는 본문뿐이다 — 헤더의 날짜·카테고리·목차가 발췌문 앞자리를 차지하지 않게 */}
+    <div class:list={["prose", { "prose-essay": isEssay }]} data-pagefind-body>
       <Content />
     </div>
     <div class="post-end" role="presentation">
@@ -112,6 +199,13 @@ const jsonLd = JSON.stringify({
         });
       }
 
+      // 목차는 접힌 채로 나간다 — 좁은 화면에서 30줄짜리 목록이 펼쳐져 있으면 본문까지 또 스크롤해야 한다.
+      // 넓은 화면에서는 여백의 레일이라 펼쳐 두는 게 맞는데, CSS로는 details를 열 수 없어서 여기서 연다.
+      function openTocOnWide() {
+        const toc = document.querySelector<HTMLDetailsElement>(".toc details");
+        if (toc) toc.open = matchMedia("(min-width: 80rem)").matches;
+      }
+
       function initLinkCopy() {
         document.querySelectorAll<HTMLButtonElement>("[data-copy-link]").forEach((btn) => {
           if (btn.dataset.bound) return;
@@ -137,6 +231,7 @@ const jsonLd = JSON.stringify({
         zoom = mediumZoom(".prose img", { background: "rgba(12, 10, 8, 0.93)", margin: 28 });
         initCodeCopy();
         initLinkCopy();
+        openTocOnWide();
       });
     </script>
     {(prev || next) && (

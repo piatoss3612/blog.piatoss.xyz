@@ -29,6 +29,12 @@ Astro 5 정적 출력 + Pagefind 검색. UI 프레임워크·CSS 라이브러리
 | RSS | 제외 | 포함 |
 | 이전·다음 탐색 | 이관분끼리만 | 고유 글끼리만 |
 
+**시리즈** — `series: {name, order}`가 있으면 이전·다음이 날짜가 아니라 같은 시리즈의 앞뒤 편으로 잡히고, 제목 아래 접힌 목록이 붙는다. 첫 편 앞과 마지막 편 뒤는 비워 시리즈 밖으로 나가지 않는다. `order`는 정렬 키일 뿐이라 0부터 시작해도 되고 제목 번호와 달라도 된다(Ethernaut은 0~35). 문자열 하나가 아니라 객체인 이유는 제목 접두사에서 도로 파싱하지 않기 위해서다 — 제목을 고치면 순서가 따라 바뀐다. 이관분 101편은 `scripts/draft-series.mjs`가 붙였고(손으로 고른 9개만), 새로 묶을 때는 그 스크립트의 `SERIES` 배열에 한 줄 추가하고 `--apply`.
+
+`updated`는 고친 날짜다. 있으면 sitemap `lastmod`·JSON-LD `dateModified`·`article:modified_time`이 그 값을 쓰고, 없으면 `date`다. 오타 하나 고치고 올리지는 말 것 — 검색엔진에 "내용이 바뀌었다"고 알리는 값이다.
+
+`/llms.txt`는 `src/pages/llms.txt.ts`가 컬렉션에서 만든다. 고유 글은 전부, 이관분은 카테고리별 편수만 싣고 조각은 싣지 않는다. `public/`에 손으로 쓴 사본을 두지 말 것 — 둘이 어긋난다.
+
 **notes** (`src/content/notes/`) — 조각. 제목이 없어도 된다. `noindex`이고 sitemap·RSS·홈에서 빠진다.
 
 목록은 날짜로 묶이고 같은 날 조각은 시각으로 갈린다. 하루에 여러 개를 올리려면 `time`을 적는다.
@@ -62,7 +68,14 @@ source:
 
 ## 이미지
 
-글 이미지는 `public/posts/<id>/img/`에 있고 마크다운에서 절대경로로 참조한다. Astro 이미지 파이프라인 밖이라 `astro.config.mjs`의 `rehypeLazyImages`가 `loading`·`decoding`을 붙인다. 같은 파일의 `rehypeYouTube`는 유튜브 링크만 있는 문단을 임베드로 바꾼다 — `.md`에서 컴포넌트를 못 쓰기 때문이다.
+글 이미지는 `public/posts/<id>/img/`에 있고 마크다운에서 절대경로로 참조한다. Astro 이미지 파이프라인 밖이라 rehype 플러그인이 대신 손을 본다. 플러그인은 전부 `src/lib/rehype.mjs`에 있고 `astro.config.mjs`는 순서만 정한다.
+
+- `rehypeLazyImages` — `loading`·`decoding`, 빠진 `alt`, 그리고 `public/` 아래 파일을 `sharp`로 읽어 `width`·`height`. 치수가 없으면 그림이 도착할 때 아래 문단이 밀린다.
+- `rehypeFigures` — 그림 하나만 든 문단을 `figure`로 올리고 alt가 있으면 `figcaption`으로 쓴다. **그러니 alt는 캡션으로 읽힐 문장으로 쓴다.** 설명할 게 없으면 `![](...)`로 비워 두면 캡션 없이 감싸기만 한다.
+- `rehypeHeadingAnchors` — h2·h3·h4에 그 절로 가는 링크.
+- `rehypeYouTube` — 유튜브 링크만 있는 문단을 임베드로. `.md`에서 컴포넌트를 못 쓰기 때문이다.
+
+**사용자 rehype 플러그인은 Astro의 `rehypeRaw`보다 먼저 돈다.** 이관분에 남은 raw `<img>`·`<table>`은 그 시점에 아직 문자열이라 위 플러그인들이 못 본다 — 그쪽은 마크다운 소스를 직접 고쳐야 한다.
 
 ## 웹폰트
 

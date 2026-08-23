@@ -1,5 +1,9 @@
 ---
+import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
+
+// 색인 범위를 말해 두는 편이 낫다. 조각(notes)은 색인하지 않으니 여기 세지 않는다.
+const indexed = (await getCollection("posts", ({ data }) => !data.draft)).length;
 ---
 
 <Base title="검색" description="글 검색.">
@@ -8,6 +12,7 @@ import Base from "../layouts/Base.astro";
 
   <section class="hero search-hero">
     <h1>검색</h1>
+    <p>글 {indexed}편에서 찾습니다. <a href="/archive">아카이브</a> · <a href="/categories">카테고리</a></p>
   </section>
 
   <div id="search" class="pagefind-wrap"></div>

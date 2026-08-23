@@ -1,6 +1,16 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
+import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 import vitesseDark from "@shikijs/themes/vitesse-dark";
+import {
+  rehypeCallout,
+  rehypeFigures,
+  rehypeHeadingAnchors,
+  rehypeLazyImages,
+  rehypeTableWrap,
+  rehypeYouTube,
+} from "./src/lib/rehype.mjs";
+import { postLastmod } from "./src/lib/sitemap-lastmod.mjs";
 
 // vitesse-dark의 구두점(#666666, 3.3:1)·주석(3.9:1)·따옴표(2.3:1)는 4.5:1에 못 미친다.
 // 주석은 저자가 코드를 설명하려고 쓴 문장이라 제일 먼저 읽혀야 하는데 제일 먼저 사라졌다.
@@ -13,93 +23,36 @@ const codeTheme = JSON.parse(
   JSON.stringify(vitesseDark).replace(/#(?:666666|758575dd|c98a7d77)\b/gi, (hex) => CODE_COLOR_FIX[hex.toLowerCase()]),
 );
 
-// public/ 절대경로 이미지는 Astro 이미지 파이프라인 밖이라 직접 lazy 속성을 붙인다
-function rehypeLazyImages() {
-  return (tree) => {
-    const walk = (node) => {
-      if (node.type === "element" && node.tagName === "img") {
-        node.properties.loading ??= "lazy";
-        node.properties.decoding ??= "async";
-      }
-      (node.children || []).forEach(walk);
-    };
-    walk(tree);
-  };
-}
-
-// 유튜브 링크만 홀로 있는 문단을 임베드로 바꾼다. .md라 컴포넌트를 못 쓰므로
-// 본문에는 URL 한 줄만 적고 변환은 여기서 한다.
-// nocookie 도메인 + lazy 로딩 — 추적을 줄이고 스크롤 전까지 로드하지 않는다.
-function rehypeYouTube() {
-  const ID = /^[A-Za-z0-9_-]{11}$/;
-
-  const videoId = (href) => {
-    let u;
-    try {
-      u = new URL(href);
-    } catch {
-      return null;
-    }
-    if (u.hostname === "youtu.be") return u.pathname.slice(1);
-    if (u.hostname === "youtube.com" || u.hostname.endsWith(".youtube.com")) {
-      if (u.pathname === "/watch") return u.searchParams.get("v");
-      if (u.pathname.startsWith("/embed/")) return u.pathname.slice("/embed/".length);
-    }
-    return null;
-  };
-
-  const embed = (id) => ({
-    type: "element",
-    tagName: "div",
-    properties: { className: ["yt-embed"] },
-    children: [
-      {
-        type: "element",
-        tagName: "iframe",
-        properties: {
-          src: `https://www.youtube-nocookie.com/embed/${id}`,
-          title: "YouTube video",
-          loading: "lazy",
-          referrerPolicy: "strict-origin-when-cross-origin",
-          allow: "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share",
-          allowFullScreen: true,
-        },
-        children: [],
-      },
-    ],
-  });
-
-  return (tree) => {
-    const walk = (node) => {
-      const children = node.children || [];
-      for (let i = 0; i < children.length; i++) {
-        const child = children[i];
-        if (child.type !== "element") continue;
-        if (child.tagName === "p") {
-          const meaningful = (child.children || []).filter(
-            (c) => !(c.type === "text" && c.value.trim() === ""),
-          );
-          if (meaningful.length === 1 && meaningful[0].tagName === "a") {
-            const id = videoId(String(meaningful[0].properties?.href ?? ""));
-            if (id && ID.test(id)) {
-              children[i] = embed(id);
-              continue;
-            }
-          }
-        }
-        walk(child);
-      }
-    };
-    walk(tree);
-  };
-}
-
 export default defineConfig({
   site: "https://blog.piatoss.xyz",
   // 혼잣말은 검색에 노출하지 않는다 — sitemap에서 빼고, 페이지 자체에도 noindex를 붙인다.
-  integrations: [sitemap({ filter: (page) => !page.includes("/notes") })],
+  integrations: [
+    sitemap({
+      filter: (page) => !page.includes("/notes"),
+      // 글에는 lastmod를 준다. 목록 페이지는 무엇을 기준으로 삼을지가 애매해서 비운다 —
+      // 없는 편이 틀린 날짜보다 낫다.
+      serialize: (item) => {
+        const lastmod = postLastmod().get(new URL(item.url).pathname);
+        return lastmod ? { ...item, lastmod } : item;
+      },
+    }),
+  ],
   markdown: {
-    rehypePlugins: [rehypeLazyImages, rehypeYouTube],
+    // 순서가 곧 계약이다.
+    // - rehypeHeadingIds를 앞에 직접 세우는 건 Astro가 붙이는 id가 사용자 플러그인 **뒤에** 오기 때문이다.
+    //   앵커가 href로 쓸 id가 그 전에 있어야 한다. Astro 것은 이미 있는 id를 덮지 않으니 뒤에서 또 돌아도 같다.
+    // - rehypeFigures는 rehypeYouTube 뒤에 온다. 앞에 두면 <p><a><img></a></p>가 figure로 먼저 감싸져
+    //   유튜브 링크 문단 판정에서 빠진다.
+    // - rehypeCallout은 blockquote를 aside로 바꾸므로 blockquote를 보는 것이 뒤에 오면 안 된다.
+    rehypePlugins: [
+      rehypeHeadingIds,
+      rehypeHeadingAnchors,
+      rehypeLazyImages,
+      rehypeYouTube,
+      rehypeFigures,
+      rehypeTableWrap,
+      rehypeCallout,
+    ],
     shikiConfig: {
       theme: codeTheme,
       wrap: false,

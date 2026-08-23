@@ -23,6 +23,13 @@
   /* 코드 안의 한글(주석·문자열)이 OS 폰트로 떨어지지 않게 서브셋에 있는 Plex KR을 끝에 둔다 */
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "IBM Plex Sans KR", monospace;
   --measure: 44rem;
+  /* 모서리는 2~8px 일곱 가지, 전이는 120~160ms 다섯 가지로 흩어져 있었다.
+     그 차이는 눈에 안 보이고 고칠 때만 걸린다. 각각 두 단으로 줄인다.
+     140ms는 두 토큰의 딱 중간이라 값이 아니라 역할로 갈랐다 — 색·테두리 되먹임은 fast */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --t-fast: 120ms;
+  --t-base: 160ms;
   /* 아트 슬롯: 히어로는 픽셀 밤하늘, 푸터는 랜턴길 */
   --hero-image: url("/bremen/sky-pixel.webp");
   --hero-pos: center 22%;
@@ -45,7 +52,7 @@
 :focus-visible {
   outline: 2px solid var(--sl-accent);
   outline-offset: 3px;
-  border-radius: 2px;
+  border-radius: var(--r-sm);
 }
 
 * {
@@ -98,7 +105,7 @@ a {
   color: var(--sl-accent);
   text-decoration: none;
   text-decoration-thickness: 1px;
-  transition: color 120ms ease;
+  transition: color var(--t-fast) ease;
 }
 
 a:hover {
@@ -123,11 +130,11 @@ a:hover {
   padding: 0.55rem 0.9rem;
   transform: translateY(-150%);
   border: 1px solid var(--sl-card-border);
-  border-radius: 0 0 5px 5px;
+  border-radius: 0 0 var(--r-sm) var(--r-sm);
   background: var(--sl-bg-raised);
   color: var(--sl-text);
   font-size: 0.85rem;
-  transition: transform 120ms ease;
+  transition: transform var(--t-fast) ease;
 }
 
 .skip-link:focus-visible {
@@ -428,16 +435,16 @@ main.shell {
   padding: 1.85rem 1.8rem 1.4rem;
   overflow: visible;
   border: 1px solid var(--sl-card-border-dim);
-  border-radius: 7px;
+  border-radius: var(--r-md);
   background:
     radial-gradient(100% 100% at 12% -12%, rgba(214, 140, 67, 0.09), transparent 55%),
     linear-gradient(115deg, rgba(18, 29, 33, 0.9), var(--sl-card-bg));
   color: var(--sl-text);
-  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.12);
+  /* 검은 그림자는 뺐다. 배경이 이미 거의 검정이라 채널당 1~5/255밖에 안 움직인다 —
+     보이지도 않는 것을 매 프레임 합성한다. 카드가 떠 있다는 신호는 테두리와 1px 이동으로 충분하다 */
   transition:
-    border-color 160ms ease,
-    transform 160ms ease,
-    box-shadow 160ms ease;
+    border-color var(--t-base) ease,
+    transform var(--t-base) ease;
 }
 
 .featured:hover {
@@ -445,7 +452,6 @@ main.shell {
   color: var(--sl-text);
   text-decoration: none;
   transform: translateY(-1px);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.2);
 }
 
 .featured-label {
@@ -455,7 +461,7 @@ main.shell {
   margin: 0;
   padding: 0.28rem 0.78rem 0.34rem;
   border: 1px solid #74502f;
-  border-radius: 3px;
+  border-radius: var(--r-sm);
   background: #b8783d;
   color: #101418;
   font-size: 0.72rem;
@@ -605,8 +611,8 @@ main.shell {
   margin-inline: -0.55rem;
   padding: 0.65rem 0.55rem;
   border-bottom: 1px solid var(--sl-card-border-dim);
-  border-radius: 5px;
-  transition: background-color 140ms ease;
+  border-radius: var(--r-sm);
+  transition: background-color var(--t-fast) ease;
 }
 
 .post-list li:hover {
@@ -684,7 +690,7 @@ main.shell {
   display: block;
   padding: 0.9rem 1.1rem;
   border: 1px solid var(--sl-card-border-dim);
-  border-radius: 7px;
+  border-radius: var(--r-md);
   background: var(--sl-card-bg);
   color: var(--sl-text);
 }
@@ -716,13 +722,13 @@ main.shell {
 .writing-card {
   padding: 1.4rem 1.5rem 1.3rem;
   border: 1px solid var(--sl-card-border-dim);
-  border-radius: 7px;
+  border-radius: var(--r-md);
   background:
     radial-gradient(100% 120% at 5% -20%, rgba(214, 140, 67, 0.07), transparent 52%),
     var(--sl-card-bg);
   transition:
-    border-color 150ms ease,
-    transform 150ms ease;
+    border-color var(--t-base) ease,
+    transform var(--t-base) ease;
 }
 
 .writing-card:hover {
@@ -819,8 +825,8 @@ main.shell {
   font-family: var(--font-mono);
   opacity: 0;
   transition:
-    opacity 150ms ease,
-    color 150ms ease;
+    opacity var(--t-base) ease,
+    color var(--t-base) ease;
 }
 
 .note-entry:hover .note-permalink,
@@ -1013,11 +1019,13 @@ main.shell {
   --pagefind-ui-scale: 0.82;
   --pagefind-ui-primary: var(--sl-accent-strong);
   --pagefind-ui-text: var(--sl-text);
-  --pagefind-ui-background: var(--sl-bg);
-  --pagefind-ui-border: var(--sl-card-border-dim);
+  /* 검색은 이 페이지에서 유일하게 뭔가를 입력하는 자리다.
+     배경색이 페이지와 같고 테두리가 0.14 알파면 입력창이 어디부터인지 보이지 않는다 */
+  --pagefind-ui-background: var(--sl-bg-soft);
+  --pagefind-ui-border: rgba(219, 176, 124, 0.5);
   --pagefind-ui-tag: var(--sl-bg-raised);
   --pagefind-ui-border-width: 1px;
-  --pagefind-ui-border-radius: 5px;
+  --pagefind-ui-border-radius: var(--r-sm);
   --pagefind-ui-font: var(--font-sans);
 }
 
@@ -1040,7 +1048,7 @@ main.shell {
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid var(--sl-card-border-dim);
-  border-radius: 5px;
+  border-radius: var(--r-sm);
   background: #000;
 }
 
@@ -1091,9 +1099,83 @@ main.shell {
 .post-rule {
   width: 3.2rem;
   height: 3px;
-  border-radius: 2px;
+  border-radius: var(--r-sm);
   background: linear-gradient(to right, var(--sl-accent), var(--sl-accent-dim));
   box-shadow: 0 0 10px rgba(214, 140, 67, 0.26);
+}
+
+/* 목차 — 마크업 하나로 두 배치를 낸다. 좁은 화면에서는 제목 밑에 접힌 채로 놓이고,
+   80rem부터는 본문 왼쪽 여백의 sticky 레일이 된다. 펼침은 [...id].astro가 넓은 화면에서만 연다 */
+.toc {
+  margin-bottom: 2.6rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.toc summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  color: var(--sl-text-muted);
+  cursor: pointer;
+  /* 브라우저 기본 삼각형은 크기도 색도 제각각이라 지우고 아래에서 다시 그린다 */
+  list-style: none;
+}
+
+.toc summary::-webkit-details-marker {
+  display: none;
+}
+
+/* 접힘·펼침을 알리는 유일한 신호. 삼각형 문자로 그리면 웹폰트 서브셋에 없어서 OS 폰트로 떨어진다 */
+.toc summary::before {
+  width: 0;
+  height: 0;
+  border-top: 3.5px solid transparent;
+  border-bottom: 3.5px solid transparent;
+  border-left: 5px solid currentColor;
+  content: "";
+  transition: transform var(--t-base) ease;
+}
+
+.toc details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.toc summary:hover {
+  color: var(--sl-text);
+}
+
+.toc ol {
+  margin: 0.7rem 0 0;
+  padding: 0;
+  /* 절 제목에 이미 번호가 붙은 글이 많다. 목록 번호까지 찍으면 번호가 두 벌이 된다 */
+  list-style: none;
+}
+
+.toc ol ol {
+  margin-top: 0.35rem;
+  padding-left: 0.8rem;
+}
+
+.toc li + li {
+  margin-top: 0.4rem;
+}
+
+/* 목차는 본문을 찾아가는 길이지 본문이 아니다. 앰버는 본문 링크 몫으로 남긴다.
+   긴 제목은 두 줄에서 자른다 — 레일 한 칸이 다섯 줄이 되면 목차 구실을 못 한다 */
+.toc a {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--sl-text-muted);
+  text-decoration: none;
+}
+
+.toc a:hover {
+  color: var(--sl-text);
+  text-decoration: none;
 }
 
 /* 본문 한가운데 앰버 낱말이 링크인지 아닌지는 밑줄로 안다. 색 하나로는 본문과 2.4:1 */
@@ -1160,6 +1242,44 @@ main.shell {
   margin-top: 1.2rem;
 }
 
+/* 절 링크로 뛰어왔을 때 제목이 뷰포트 맨 위에 딱 붙지 않게 */
+.prose h2,
+.prose h3,
+.prose h4 {
+  scroll-margin-top: 2rem;
+}
+
+/* 절 단위 링크. 긴 글에서 "이 부분"을 가리킬 수단이 없었다.
+   제목마다 #이 상시로 서 있으면 읽는 흐름을 끊으므로 hover·focus에서만 보인다(.note-permalink와 같은 어법).
+   기호를 ::before로 그리는 건 목차가 쓰는 헤딩 텍스트에 #이 섞이지 않게 하기 위해서다 — 이유는 src/lib/rehype.mjs에. */
+.prose .heading-anchor {
+  margin-left: 0.4rem;
+  color: var(--sl-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  font-weight: 400;
+  text-decoration: none;
+  opacity: 0;
+  transition:
+    opacity var(--t-base) ease,
+    color var(--t-base) ease;
+}
+
+.prose .heading-anchor::before {
+  content: "#";
+}
+
+.prose h2:hover .heading-anchor,
+.prose h3:hover .heading-anchor,
+.prose h4:hover .heading-anchor,
+.prose .heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+.prose .heading-anchor:hover {
+  color: var(--sl-accent-strong);
+}
+
 .prose li + li {
   margin-top: 0.5em;
 }
@@ -1179,11 +1299,22 @@ main.shell {
   height: auto;
   margin: 1.4rem auto;
   border: 1px solid var(--sl-card-border-dim);
-  border-radius: 6px;
+  border-radius: var(--r-md);
 }
 
+/* 그림 한 장짜리 문단은 rehypeFigures가 figure로 올린다.
+   figure가 위아래 여백을 잡으므로 안쪽 img의 세로 마진은 없앤다 — 겹치면 그림만 동떨어져 보인다 */
 .prose figure {
   margin: 1.5rem 0;
+}
+
+.prose figure img {
+  margin: 0 auto;
+}
+
+/* 원본 크기로 여는 링크로 감싼 그림. 인라인이면 가운데 정렬이 먹지 않는다 */
+.prose figure > a {
+  display: block;
 }
 
 .prose figcaption {
@@ -1197,11 +1328,39 @@ main.shell {
   margin: 1.4rem 0;
   padding: 0.35rem 1.3rem;
   border-left: 3px solid var(--sl-accent-dim);
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 var(--r-md) var(--r-md) 0;
   background: var(--sl-card-bg);
   color: var(--sl-text);
   font-family: var(--font-serif);
   font-size: 0.98em;
+}
+
+/* 참고·주의는 옮겨 적은 말이 아니라 내가 본문 옆에 덧붙인 말이다.
+   마크다운에 담을 그릇이 blockquote뿐이라 인용과 같은 모양으로 읽혔다.
+   blockquote(세리프·카드 배경)와 반대로 산세리프·본문 배경 계열로 두어 눈이 둘을 가른다 */
+.prose .callout {
+  margin: 1.4rem 0;
+  padding: 0.8rem 1.1rem;
+  border-left: 2px solid var(--sl-accent-dim);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  background: var(--sl-bg-raised);
+  color: var(--sl-text);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+}
+
+/* tip과 note는 같은 색이다 — 종류를 색으로 셋이나 가르면 본문보다 곁말이 시끄러워진다.
+   경고만 한 단계 밝게 둔다 */
+.prose .callout[data-kind="warn"] {
+  border-left-color: var(--sl-accent-strong);
+}
+
+.prose .callout > :first-child {
+  margin-top: 0;
+}
+
+.prose .callout > :last-child {
+  margin-bottom: 0;
 }
 
 .prose code {
@@ -1212,7 +1371,7 @@ main.shell {
 .prose :not(pre) > code {
   padding: 0.1em 0.35em;
   border: 1px solid var(--sl-card-border);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background: var(--sl-bg-soft);
   color: var(--sl-text);
   font-size: 0.88em;
@@ -1222,7 +1381,7 @@ main.shell {
 .code-wrap {
   margin: 1.4rem 0;
   border: 1px solid var(--sl-card-border-dim);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   overflow: hidden;
 }
 
@@ -1262,15 +1421,15 @@ main.shell {
   min-height: 1.7rem;
   padding: 0.1rem 0.6rem;
   border: 1px solid var(--sl-card-border-dim);
-  border-radius: 5px;
+  border-radius: var(--r-sm);
   background: transparent;
   color: var(--sl-text-muted);
   font-family: var(--font-sans);
   font-size: 0.74rem;
   cursor: pointer;
   transition:
-    color 130ms ease,
-    border-color 130ms ease;
+    color var(--t-fast) ease,
+    border-color var(--t-fast) ease;
 }
 
 .code-copy:hover {
@@ -1307,6 +1466,26 @@ main.shell {
   z-index: 91;
 }
 
+/* 가로 스크롤은 래퍼가 맡는다. table에 직접 display:block; overflow-x를 주면
+   셀 폭 계산이 사라져서 열이 내용에 맞게 벌어지지 않고 글자가 세로로 쌓인다 */
+.prose .table-wrap {
+  margin: 1.4rem 0;
+  overflow-x: auto;
+  /* 코드 블록과 같은 결정 — 오른쪽 페이드는 "스크롤 가능할 때만"을 CSS로 못 물어서 스크롤바로만 신호한다 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--sl-accent-dim) transparent;
+}
+
+/* 키보드로 표 안에 들어왔다는 표시. tabindex를 줬으면 초점도 보여야 한다 */
+.prose .table-wrap:focus-visible {
+  outline: 2px solid var(--sl-accent-dim);
+  outline-offset: 2px;
+}
+
+/* 래퍼 밖에 남은 표. 이관분에 raw <table>로 박혀 있는 것들은 rehype 플러그인이
+   도는 시점에 아직 raw 노드라 감싸지지 않는다(rehypeRaw가 사용자 플러그인 뒤에 돈다).
+   마크다운 표로 옮기기 전까지는 표가 직접 스크롤을 맡는다 — 열 폭 계산은 잃지만
+   44rem을 뚫고 페이지 전체가 가로로 밀리는 것보다 낫다 */
 .prose table {
   display: block;
   margin: 1.4rem 0;
@@ -1314,8 +1493,22 @@ main.shell {
   border-collapse: collapse;
 }
 
+/* max-content: 열이 내용만큼 벌어지고 넘치는 만큼만 래퍼가 스크롤한다.
+   min-width 100%는 짧은 표가 읽기 폭 안에서 쪼그라들지 않게 */
+.prose .table-wrap table {
+  display: table;
+  width: max-content;
+  min-width: 100%;
+  max-width: none;
+  margin: 0;
+  overflow: visible;
+}
+
+/* max-width: 문장이 든 셀까지 max-content로 펴면 한 줄이 화면 몇 배가 된다.
+   상한을 둬야 설명 열은 줄바꿈하고, 열이 많은 표만 가로로 넘친다 */
 .prose th,
 .prose td {
+  max-width: 22rem;
   padding: 0.45rem 0.8rem;
   border: 1px solid var(--sl-card-border-dim);
   font-size: 0.92rem;
@@ -1389,9 +1582,9 @@ main.shell {
   gap: 0.3rem;
   padding: 0.85rem 1.05rem;
   border: 1px solid var(--sl-card-border-dim);
-  border-radius: 7px;
+  border-radius: var(--r-md);
   background: var(--sl-card-bg);
-  transition: border-color 140ms ease;
+  transition: border-color var(--t-fast) ease;
 }
 
 .pn-card:hover {
@@ -1439,6 +1632,45 @@ main.shell {
   font-family: var(--font-serif);
 }
 
+/* 목차 레일은 본문 왼쪽 여백에만 선다. 본문은 좁은 화면과 같은 자리(헤더 워드마크 축) 그대로다 —
+   레일 때문에 본문이 오른쪽으로 밀리면 글 페이지만 사이트의 축에서 어긋난다.
+   80rem부터인 이유: 여백 (80 - 44) / 2 = 18rem에 레일 14 + 간격 2 = 16rem이 들어가고 2rem이 남는다.
+   그 아래 뷰포트에서는 제목 밑의 접힌 details가 목차다. */
+@media (min-width: 80rem) {
+  .post-has-toc {
+    --toc-rail: 14rem;
+    --toc-gap: 2rem;
+    --toc-body: calc(var(--measure) - 2.5rem);
+    display: grid;
+    grid-template-columns: var(--toc-rail) var(--toc-body);
+    column-gap: var(--toc-gap);
+    width: calc(var(--toc-rail) + var(--toc-gap) + var(--toc-body));
+    margin-left: calc(-1 * (var(--toc-rail) + var(--toc-gap)));
+  }
+
+  .post-has-toc > * {
+    grid-column: 2;
+  }
+
+  /* 레일과 본문이 같은 행이어야 sticky가 본문 길이만큼 따라간다 */
+  .post-has-toc > .toc {
+    grid-column: 1;
+    grid-row: 2;
+    position: sticky;
+    top: 5rem;
+    align-self: start;
+    max-height: calc(100vh - 7rem);
+    margin-bottom: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sl-accent-dim) transparent;
+  }
+
+  .post-has-toc > .prose {
+    grid-row: 2;
+  }
+}
+
 @media (hover: none) {
   /* 손가락 타깃. 띠 높이가 같이 늘어나는 건 감수한다 */
   .code-copy {
@@ -1449,6 +1681,11 @@ main.shell {
   /* hover가 없는 기기에서는 permalink가 영영 안 보인다 */
   .note-permalink {
     opacity: 0.75;
+  }
+
+  /* 같은 이유. 다만 제목 옆이라 본문보다는 물러나 있어야 한다 */
+  .prose .heading-anchor {
+    opacity: 0.5;
   }
 }
 
@@ -1531,20 +1768,28 @@ main.shell {
     font-size: 1.24rem;
   }
 
+  /* 분류를 숨기면 좁은 화면에서만 탐색 단서가 하나 사라진다.
+     지우는 대신 제목을 통칼럼으로 내리고 분류를 날짜 옆에 붙인다 */
   .post-list li {
-    display: block;
+    flex-wrap: wrap;
+    gap: 0.1rem 0.55rem;
     padding: 0.6rem 0.55rem;
   }
 
   .post-list .post-date {
-    display: block;
+    order: 1;
     width: auto;
-    margin-bottom: 0.15rem;
     font-size: 0.78rem;
   }
 
   .post-list .post-cat {
-    display: none;
+    order: 2;
+    margin-left: 0;
+  }
+
+  .post-list li > a:not(.post-cat) {
+    order: 3;
+    flex-basis: 100%;
   }
 
   .post-footer-nav {
@@ -1576,4 +1821,114 @@ main.shell {
   .medium-zoom-overlay {
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── 목록 마감 (T7) ─────────────────────────────────────────────── */
+
+/* 아카이브는 한 해가 40줄을 넘는다. 스크롤을 내리면 지금 보는 게 몇 년인지가 화면 밖으로 나간다.
+   조각의 날짜 헤딩은 하루에 몇 줄뿐이라 붙잡아 둘 이유가 없어 여기만 sticky다.
+   헤더가 sticky가 아니므로 top은 0이다 */
+.year-heading {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin-top: 2.4rem;
+  padding-block: 0.55rem 0.3rem;
+  background: var(--sl-bg);
+}
+
+/* 이미 읽은 글을 가려낸다. 앰버는 링크 것이라 색을 바꾸지 않고 밝기만 내린다.
+   .post-cat은 뺀다 — 카테고리 링크는 목적지가 목록이라 "읽음"이 뜻을 갖지 않는다.
+   hover를 :visited 뒤에 다시 두는 건 둘의 명시도가 같아서 순서가 곧 우선순위이기 때문이다 */
+.post-list li > a:not(.post-cat):visited {
+  color: var(--sl-text-muted);
+}
+
+.post-list li > a:not(.post-cat):hover {
+  color: var(--sl-accent-strong);
+}
+
+@media (max-width: 40rem) {
+  /* 좁은 화면에서는 히어로가 세로로 잘려 태그라인이 밝은 하늘에 얹힌다. 그림을 내려 어두운 쪽을 깐다 */
+  :root {
+    --hero-pos: center 12%;
+  }
+}
+
+/* 시리즈 — 제목 바로 밑에 "몇 편 중 몇 번째"를 한 줄로 알리고, 펼치면 전 편 목록이 나온다.
+   목차(.toc)와 같은 details 어법을 쓴다. 한 글에서 둘이 위아래로 서므로 서로 달라 보이면
+   두 개의 다른 장치처럼 읽힌다. 규칙을 합치지 않고 따로 둔 건 목차 쪽 배치(80rem 레일)에
+   딸려 가지 않게 하기 위해서다 — 시리즈는 늘 헤더 안에 남는다. */
+.series {
+  margin: 0 0 1.1rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.series > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  color: var(--sl-text-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.series > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* 삼각형 문자로 그리면 웹폰트 서브셋에 없어서 OS 폰트로 떨어진다 */
+.series > summary::before {
+  width: 0;
+  height: 0;
+  border-top: 3.5px solid transparent;
+  border-bottom: 3.5px solid transparent;
+  border-left: 5px solid currentColor;
+  content: "";
+  transition: transform var(--t-base) ease;
+}
+
+.series[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.series > summary:hover {
+  color: var(--sl-text);
+}
+
+/* 편 제목에 이미 번호가 붙은 시리즈가 많다. 목록 번호까지 찍으면 번호가 두 벌이 된다.
+   36편짜리(Ethernaut)를 펼치면 본문이 화면 두 개 아래로 밀려나므로 높이를 잘라 굴린다 */
+.series ol {
+  max-height: 18rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sl-accent-dim) transparent;
+}
+
+.series li + li {
+  margin-top: 0.35rem;
+}
+
+/* 지금 읽는 편만 본문색이고 나머지는 물러나 있다. 앰버는 본문 링크 몫이라 쓰지 않는다 */
+.series li > * {
+  display: block;
+  padding-left: 0.7rem;
+  border-left: 2px solid transparent;
+  color: var(--sl-text-muted);
+  text-decoration: none;
+}
+
+.series a:hover {
+  color: var(--sl-text);
+  text-decoration: none;
+}
+
+.series [aria-current="page"] {
+  border-left-color: var(--sl-accent-dim);
+  color: var(--sl-text);
 }

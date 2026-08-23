@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import { mainCategory, categorySlug, CATEGORY_BY_SLUG } from "../../lib/site";
+import { subCategory, categorySlug, CATEGORY_BY_SLUG } from "../../lib/site";
 import { dayKey, dateDot } from "../../lib/format";
 
 export async function getStaticPaths() {
@@ -29,13 +29,17 @@ const name = CATEGORY_BY_SLUG[slug!] ?? "기타";
   </section>
   <ul class="post-list">
     {
-      posts.map((post) => (
-        <li>
-          <time class="post-date" datetime={dayKey(post.data.date)}>{dateDot(post.data.date)}</time>
-          <a href={`/posts/${post.id}/`}>{post.data.title}</a>
-          <span class="post-cat">{post.data.category}</span>
-        </li>
-      ))
+      posts.map((post) => {
+        // 상위 분류는 이 페이지 제목이 이미 말하고 있다. 칩에는 하위 분류만 남긴다
+        const sub = subCategory(post.data.category);
+        return (
+          <li>
+            <time class="post-date" datetime={dayKey(post.data.date)}>{dateDot(post.data.date)}</time>
+            <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+            {sub && <span class="post-cat">{sub}</span>}
+          </li>
+        );
+      })
     }
   </ul>
 </Base>
