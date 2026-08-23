@@ -1,5 +1,17 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
+import vitesseDark from "@shikijs/themes/vitesse-dark";
+
+// vitesse-dark의 구두점(#666666, 3.3:1)·주석(3.9:1)·따옴표(2.3:1)는 4.5:1에 못 미친다.
+// 주석은 저자가 코드를 설명하려고 쓴 문장이라 제일 먼저 읽혀야 하는데 제일 먼저 사라졌다.
+const CODE_COLOR_FIX = {
+  "#666666": "#8a8a8a",
+  "#758575dd": "#7f8f7f",
+  "#c98a7d77": "#c98a7dcc",
+};
+const codeTheme = JSON.parse(
+  JSON.stringify(vitesseDark).replace(/#(?:666666|758575dd|c98a7d77)\b/gi, (hex) => CODE_COLOR_FIX[hex.toLowerCase()]),
+);
 
 // public/ 절대경로 이미지는 Astro 이미지 파이프라인 밖이라 직접 lazy 속성을 붙인다
 function rehypeLazyImages() {
@@ -89,7 +101,7 @@ export default defineConfig({
   markdown: {
     rehypePlugins: [rehypeLazyImages, rehypeYouTube],
     shikiConfig: {
-      theme: "vitesse-dark",
+      theme: codeTheme,
       wrap: false,
     },
   },

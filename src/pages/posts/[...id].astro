@@ -21,6 +21,8 @@ export async function getStaticPaths() {
 
 const { post, prev, next } = Astro.props;
 const { Content } = await render(post);
+// 이전·다음은 이관분끼리, 고유 글끼리만 이어지므로 라벨도 그 이름을 따른다
+const navNoun = post.data.tistoryId !== undefined ? "아카이브" : "기록";
 // 에세이는 본문까지 세리프로 — 기술 글은 산세리프 유지
 const isEssay = post.data.category.startsWith("생각 정리");
 
@@ -72,7 +74,13 @@ const jsonLd = JSON.stringify({
       <img src="/bremen/ledger.webp" alt="" loading="lazy" />
     </div>
     <script>
-      import mediumZoom from "medium-zoom";
+      import mediumZoom, { type Zoom } from "medium-zoom";
+
+      // 버튼 글자를 잠깐 바꿨다가 되돌린다. 실패도 되돌려야 다음 시도가 가능하다
+      function flash(btn: HTMLButtonElement, text: string, idle: string) {
+        btn.textContent = text;
+        setTimeout(() => (btn.textContent = idle), 1600);
+      }
 
       function initCodeCopy() {
         document.querySelectorAll<HTMLPreElement>(".prose pre.astro-code").forEach((pre) => {
@@ -80,21 +88,27 @@ const jsonLd = JSON.stringify({
           const wrap = document.createElement("div");
           wrap.className = "code-wrap";
           pre.replaceWith(wrap);
-          wrap.appendChild(pre);
+          const head = document.createElement("div");
+          head.className = "code-head";
+          // 헤더 띠 왼쪽의 언어 라벨. shiki가 찍어 둔 data-language를 CSS가 attr()로 읽는다
+          const lang = pre.dataset.language;
+          if (lang && lang !== "plaintext" && lang !== "text") head.dataset.lang = lang;
           const btn = document.createElement("button");
           btn.className = "code-copy";
           btn.type = "button";
+          btn.setAttribute("aria-live", "polite");
           btn.textContent = "복사";
           btn.addEventListener("click", async () => {
             try {
               await navigator.clipboard.writeText(pre.innerText);
-              btn.textContent = "복사됨 ✓";
-              setTimeout(() => (btn.textContent = "복사"), 1600);
+              flash(btn, "복사됨 ✓", "복사");
             } catch {
-              btn.textContent = "실패";
+              flash(btn, "복사 안 됨", "복사");
             }
           });
-          wrap.appendChild(btn);
+          head.appendChild(btn);
+          wrap.appendChild(head);
+          wrap.appendChild(pre);
         });
       }
 
@@ -102,31 +116,35 @@ const jsonLd = JSON.stringify({
         document.querySelectorAll<HTMLButtonElement>("[data-copy-link]").forEach((btn) => {
           if (btn.dataset.bound) return;
           btn.dataset.bound = "1";
+          btn.setAttribute("aria-live", "polite");
           btn.addEventListener("click", async () => {
             const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
             try {
               await navigator.clipboard.writeText(canonical?.href ?? location.href);
-              btn.textContent = "복사됨 ✓";
-              setTimeout(() => (btn.textContent = "링크 복사"), 1600);
+              flash(btn, "복사됨 ✓", "링크 복사");
             } catch {
-              btn.textContent = "실패";
+              flash(btn, "복사 안 됨", "링크 복사");
             }
           });
         });
       }
 
-      // astro:page-load는 최초 로드와 ClientRouter 전환 모두에서 발생한다
+      // astro:page-load는 최초 로드와 ClientRouter 전환 모두에서 발생한다.
+      // 이전 인스턴스를 떼지 않으면 전환마다 document 리스너가 하나씩 쌓인다
+      let zoom: Zoom | undefined;
       document.addEventListener("astro:page-load", () => {
-        mediumZoom(".prose img", { background: "rgba(12, 10, 8, 0.93)", margin: 28 });
+        zoom?.detach();
+        zoom = mediumZoom(".prose img", { background: "rgba(12, 10, 8, 0.93)", margin: 28 });
         initCodeCopy();
         initLinkCopy();
       });
     </script>
+    {(prev || next) && (
     <nav class="post-footer-nav" data-pagefind-ignore>
       {
         prev ? (
           <a class="pn-card" href={`/posts/${prev.id}/`}>
-            <span class="pn-label">← 이전 기록</span>
+            <span class="pn-label">← 이전 {navNoun}</span>
             <span class="pn-title">{prev.data.title}</span>
           </a>
         ) : (
@@ -136,7 +154,7 @@ const jsonLd = JSON.stringify({
       {
         next ? (
           <a class="pn-card pn-next" href={`/posts/${next.id}/`}>
-            <span class="pn-label">다음 기록 →</span>
+            <span class="pn-label">다음 {navNoun} →</span>
             <span class="pn-title">{next.data.title}</span>
           </a>
         ) : (
@@ -144,5 +162,6 @@ const jsonLd = JSON.stringify({
         )
       }
     </nav>
+    )}
   </article>
 </Base>

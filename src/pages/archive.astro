@@ -2,36 +2,35 @@
 import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 import { mainCategory, categorySlug } from "../lib/site";
+import { dayKey } from "../lib/format";
 
 const posts = (await getCollection("posts", ({ data }) => !data.draft && data.tistoryId !== undefined)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 
-const byYear = new Map<number, typeof posts>();
+// 연도 키도 KST 기준이어야 글 페이지의 날짜와 같은 해에 묶인다
+const byYear = new Map<string, typeof posts>();
 for (const post of posts) {
-  const year = post.data.date.getFullYear();
+  const year = dayKey(post.data.date).slice(0, 4);
   if (!byYear.has(year)) byYear.set(year, []);
   byYear.get(year)!.push(post);
 }
-
-function fmt(d: Date) {
-  return d.toISOString().slice(5, 10);
-}
+const firstYear = [...byYear.keys()].sort().at(0);
 ---
 
 <Base title="아카이브">
   <section class="hero">
     <h1>아카이브</h1>
-    <p>티스토리에서 옮겨 온 2022년 이후의 기록 {posts.length}편.</p>
+    <p>티스토리에서 옮겨 온 {firstYear}년 이후의 기록 {posts.length}편.</p>
   </section>
   {
     [...byYear.entries()].map(([year, yearPosts]) => (
       <section>
         <h2 class="year-heading">{year}</h2>
-        <ul class="post-list">
+        <ul class="post-list post-list-year">
           {yearPosts.map((post) => (
             <li>
-              <span class="post-date">{fmt(post.data.date)}</span>
+              <time class="post-date" datetime={dayKey(post.data.date)}>{dayKey(post.data.date).slice(5).replace("-", ".")}</time>
               <a href={`/posts/${post.id}/`}>{post.data.title}</a>
               <a class="post-cat" href={`/categories/${categorySlug(post.data.category)}/`}>
                 {mainCategory(post.data.category)}
