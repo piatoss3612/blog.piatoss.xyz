@@ -242,6 +242,14 @@ main.shell {
   white-space: nowrap;
 }
 
+/* 손가락 타깃. 글자는 그대로 두고 눌리는 상자만 키운다 — 여백을 음수로 되돌려 배치는 안 바뀐다 */
+@media (hover: none) {
+  .nav-links a {
+    margin: -0.4rem -0.3rem;
+    padding: 0.4rem 0.3rem;
+  }
+}
+
 .nav-links a:hover,
 .nav-links a[aria-current="page"] {
   color: var(--sl-accent-strong);
@@ -555,14 +563,17 @@ main.shell {
   margin-top: 1.5rem;
 }
 
-.archive-section {
+/* 홈의 두 번째·세 번째 구획. 최근 기록에서 갈라져 나오는 자리라 같은 선을 쓴다 */
+.archive-section,
+.notes-section {
   position: relative;
   margin-top: 4.5rem;
   padding-top: 2.65rem;
   border-top: 1px solid var(--sl-card-border);
 }
 
-.archive-section::before {
+.archive-section::before,
+.notes-section::before {
   position: absolute;
   top: -1px;
   left: 0;
@@ -572,7 +583,8 @@ main.shell {
   background: var(--sl-accent);
 }
 
-.archive-section-header {
+.archive-section-header,
+.notes-section-header {
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -580,22 +592,38 @@ main.shell {
   margin-bottom: 1.1rem;
 }
 
-.archive-section-header h2 {
+.archive-section-header h2,
+.notes-section-header h2 {
   margin: 0;
   font-family: var(--font-serif);
   font-size: 1.45rem;
   letter-spacing: -0.01em;
 }
 
-.archive-section-header > p {
+.archive-section-header > p,
+.notes-section-header > p {
   margin: 0 0 0.1rem;
   color: var(--sl-muted);
   font-size: 0.84rem;
   text-align: right;
 }
 
-.archive-link {
+.archive-link,
+.notes-link {
   margin-top: 1.4rem;
+}
+
+/* 조각 행에는 제목도 분류도 없어 링크가 걸릴 자리가 텍스트 한 곳뿐이다.
+   손가락으로 짚을 자리가 좁아지지 않게 여백을 li에서 a로 옮겨 행 전체를 링크로 둔다 */
+.notes-section .post-list li {
+  padding: 0;
+}
+
+.note-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.65rem 0.55rem;
 }
 
 .post-list {
@@ -1078,17 +1106,28 @@ main.shell {
   line-height: 1.42;
 }
 
+/* 구분점은 줄이 접히면 사라져야 한다. ::after로 두면 줄 끝에, ::before로 두면 다음 줄 머리에 매달린다.
+   점을 각 항목의 왼쪽 바깥(앞 항목의 오른쪽 여백)에 절대 배치하고 컨테이너가 넘침을 자르면,
+   줄 맨 앞 항목의 점만 컨테이너 왼쪽 밖으로 나가 잘린다. 접근 가능한 이름에는 안 섞이게 대체 텍스트를 비운다 */
 .post-meta {
   display: flex;
-  gap: 0.45rem;
   flex-wrap: wrap;
+  row-gap: 0.2rem;
+  padding-block: 2px;
+  overflow: hidden;
   color: var(--sl-text-muted);
   font-size: 0.88rem;
 }
 
-.post-meta > *:not(:last-child)::after {
-  margin-left: 0.45rem;
-  content: "·";
+.post-meta > * {
+  position: relative;
+  padding-right: 0.9rem;
+}
+
+.post-meta > *::before {
+  position: absolute;
+  left: -0.62rem;
+  content: "·" / "";
   color: var(--sl-muted);
 }
 
@@ -1191,6 +1230,8 @@ main.shell {
   text-decoration-color: currentColor;
 }
 
+/* 아직 essay 글이 한 편도 없다. 수치는 첫 에세이가 나온 뒤 그 글을 보고 잡는다 —
+   조각(발췌)이 같은 클래스를 쓰고 있으니 여기를 미리 손대면 조각 쪽이 먼저 흔들린다 */
 .prose-essay {
   font-family: var(--font-serif);
   font-size: 1.05rem;
@@ -1683,9 +1724,9 @@ main.shell {
     opacity: 0.75;
   }
 
-  /* 같은 이유. 다만 제목 옆이라 본문보다는 물러나 있어야 한다 */
+  /* 터치 기기에서는 헤딩마다 #이 상시 보여 본문이 어수선하다. 절 이동은 목차가 맡는다 */
   .prose .heading-anchor {
-    opacity: 0.5;
+    display: none;
   }
 }
 
@@ -1746,16 +1787,19 @@ main.shell {
     font-size: 0.78rem;
   }
 
-  .archive-section {
+  .archive-section,
+  .notes-section {
     margin-top: 3.8rem;
     padding-top: 2.25rem;
   }
 
-  .archive-section-header {
+  .archive-section-header,
+  .notes-section-header {
     display: block;
   }
 
-  .archive-section-header > p {
+  .archive-section-header > p,
+  .notes-section-header > p {
     margin-top: 0.35rem;
     text-align: left;
   }
@@ -1789,6 +1833,18 @@ main.shell {
 
   .post-list li > a:not(.post-cat) {
     order: 3;
+    flex-basis: 100%;
+  }
+
+  /* 조각 행은 안쪽 a가 flex 컨테이너라 날짜 위·본문 아래 배치를 여기서 한 번 더 만든다 */
+  .note-row {
+    flex-wrap: wrap;
+    gap: 0.1rem 0.55rem;
+    padding: 0.6rem 0.55rem;
+  }
+
+  .note-row > span {
+    order: 2;
     flex-basis: 100%;
   }
 

@@ -19,6 +19,10 @@ const posts = defineCollection({
     // 제목을 고치는 순간 순서가 따라 바뀐다. order는 정렬 키일 뿐이라 0부터 시작해도 되고
     // 중간이 비어도 된다 — 화면에 내보내는 "몇 번째"는 정렬한 자리에서 만든다.
     series: z.object({ name: z.string(), order: z.number() }).strict().optional(),
+    // 본문까지 세리프로 조판할지. 카테고리("생각 정리")로 판정하지 않는 이유는
+    // 카테고리가 분류이고 조판은 그와 다른 축이기 때문이다 — 글을 다른 카테고리로
+    // 옮겼다고 조판이 따라 바뀌면 안 되고, 기술 카테고리에도 에세이는 있다.
+    essay: z.boolean().default(false),
     draft: z.boolean().default(false),
   }),
 });

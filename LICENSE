@@ -1,0 +1,48 @@
+This repository holds two different kinds of work under two licenses.
+
+1. CODE — MIT License
+
+   Everything except the content listed in section 2: the Astro site
+   (src/, excluding src/content/ and src/assets/), scripts/, public/
+   non-content assets, and configuration.
+
+   Copyright (c) 2026 piatoss (Rowan)
+
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+2. CONTENT — CC BY-NC 4.0
+
+   The writing in src/content/posts/ and src/content/notes/, and the
+   images under public/posts/, are licensed under the Creative Commons
+   Attribution-NonCommercial 4.0 International License.
+   https://creativecommons.org/licenses/by-nc/4.0/
+
+   You may share and adapt them for non-commercial purposes as long as
+   you credit "piatoss (Rowan), blog.piatoss.xyz" and link back.
+
+   Not covered by this license:
+   - Excerpts in src/content/notes/ that carry a `source` field quote
+     other authors' books. They remain the property of their respective
+     authors and publishers and are reproduced here as quotations.
+   - The web fonts in src/assets/fonts/ (Outfit, IBM Plex Sans KR,
+     Noto Serif KR) are subsets distributed under the SIL Open Font
+     License 1.1 by their respective authors.
+   - Third-party screenshots, logos, and diagrams that appear inside
+     posts belong to their owners.

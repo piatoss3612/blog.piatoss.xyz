@@ -174,7 +174,22 @@ export function rehypeYouTube() {
     return null;
   };
 
-  const embed = (id) => ({
+  const textOf = (node) => {
+    if (node.type === "text") return node.value;
+    return (node.children || []).map(textOf).join("");
+  };
+
+  // iframe의 접근 가능한 이름은 title뿐이다. 전부 "YouTube video"로 두면
+  // 한 글에 영상이 여럿일 때 스크린리더에는 같은 이름이 반복된다.
+  // 링크 텍스트가 곧 영상 제목인 경우가 많아 그걸 쓰고,
+  // 맨 URL만 적힌 문단(자동 링크)은 제목이 아니므로 일반 이름으로 돌린다.
+  const titleOf = (anchor, href) => {
+    const text = textOf(anchor).trim();
+    if (!text || text === href || /^https?:\/\//.test(text)) return "YouTube 영상";
+    return text;
+  };
+
+  const embed = (id, title) => ({
     type: "element",
     tagName: "div",
     properties: { className: ["yt-embed"] },
@@ -184,7 +199,7 @@ export function rehypeYouTube() {
         tagName: "iframe",
         properties: {
           src: `https://www.youtube-nocookie.com/embed/${id}`,
-          title: "YouTube video",
+          title,
           loading: "lazy",
           referrerPolicy: "strict-origin-when-cross-origin",
           allow: "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share",
@@ -204,9 +219,10 @@ export function rehypeYouTube() {
         if (child.tagName === "p") {
           const meaningful = meaningfulChildren(child);
           if (meaningful.length === 1 && meaningful[0].tagName === "a") {
-            const id = videoId(String(meaningful[0].properties?.href ?? ""));
+            const href = String(meaningful[0].properties?.href ?? "");
+            const id = videoId(href);
             if (id && ID.test(id)) {
-              children[i] = embed(id);
+              children[i] = embed(id, titleOf(meaningful[0], href));
               continue;
             }
           }

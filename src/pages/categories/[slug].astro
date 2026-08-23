@@ -20,6 +20,19 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 const { posts } = Astro.props;
 const name = CATEGORY_BY_SLUG[slug!] ?? "기타";
+
+// 카테고리는 사이트에서 이 블로그 글과 이관분이 한자리에 오는 유일한 목록이다.
+// 그냥 날짜로 이어 붙이면 어디까지가 옮겨 온 글인지 줄마다 확인해야 하므로 구획을 가른다.
+// 한쪽만 있는 슬러그에서는 헤딩이 페이지 제목을 되풀이할 뿐이라 목록만 둔다.
+const own = posts.filter((post) => post.data.tistoryId === undefined);
+const archived = posts.filter((post) => post.data.tistoryId !== undefined);
+const groups =
+  own.length && archived.length
+    ? [
+        { id: "cat-writing", heading: "기록", posts: own },
+        { id: "cat-archive", heading: "아카이브", posts: archived },
+      ]
+    : [{ id: "cat-all", heading: null, posts }];
 ---
 
 <Base title={name}>
@@ -27,19 +40,28 @@ const name = CATEGORY_BY_SLUG[slug!] ?? "기타";
     <h1>{name}</h1>
     <p>{posts.length}편</p>
   </section>
-  <ul class="post-list">
-    {
-      posts.map((post) => {
-        // 상위 분류는 이 페이지 제목이 이미 말하고 있다. 칩에는 하위 분류만 남긴다
-        const sub = subCategory(post.data.category);
-        return (
-          <li>
-            <time class="post-date" datetime={dayKey(post.data.date)}>{dateDot(post.data.date)}</time>
-            <a href={`/posts/${post.id}/`}>{post.data.title}</a>
-            {sub && <span class="post-cat">{sub}</span>}
-          </li>
-        );
-      })
-    }
-  </ul>
+  {
+    groups.map((group) => (
+      <section aria-labelledby={group.heading ? group.id : undefined}>
+        {group.heading && (
+          <h2 class="year-heading" id={group.id}>
+            {group.heading}
+          </h2>
+        )}
+        <ul class="post-list">
+          {group.posts.map((post) => {
+            // 상위 분류는 이 페이지 제목이 이미 말하고 있다. 칩에는 하위 분류만 남긴다
+            const sub = subCategory(post.data.category);
+            return (
+              <li>
+                <time class="post-date" datetime={dayKey(post.data.date)}>{dateDot(post.data.date)}</time>
+                <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+                {sub && <span class="post-cat">{sub}</span>}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    ))
+  }
 </Base>

@@ -1,8 +1,9 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import Base from "../layouts/Base.astro";
 import { SITE, mainCategory, categorySlug } from "../lib/site";
 import { dayKey, dateDot, dateKorean, readingMinutes } from "../lib/format";
+import { sortNotes, sourceTitle } from "../lib/notes";
 
 const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
@@ -14,6 +15,36 @@ const [latest, ...recent] = currentPosts;
 // NEW는 2주까지만. 영영 붙어 있으면 "새 글"이 아니라 장식이 된다
 const isNew = latest !== undefined && Date.now() - latest.data.date.valueOf() < 14 * 86_400_000;
 const archivePreview = archivePosts.slice(0, 5);
+
+const recentNotes = sortNotes(await getCollection("notes", ({ data }) => !data.draft)).slice(0, 3);
+
+// 조각은 제목이 없어도 되는 컬렉션이라 목록에 걸 이름을 본문에서 만들어야 한다.
+// 홈의 한 줄에는 링크·이미지·코드가 그대로 들어오면 줄이 깨지므로 마크다운을 벗기고
+// 첫 문장만 남긴다. 전문은 /notes에 있으니 여기서 잘려도 잃는 게 없다.
+function firstSentence(body: string): string {
+  for (const block of body.replace(/```[\s\S]*?```/g, "").split(/\n\s*\n/)) {
+    // 한 파일에 여러 대목이 담긴 발췌는 --- 로 갈린다. 그 줄은 문장이 아니다
+    if (/^\s*(?:-{3,}|\*{3,}|_{3,})\s*$/.test(block)) continue;
+    const text = block
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+      .replace(/\[([^\]]*)\]\((?:<[^>]*>|[^)])*\)/g, "$1")
+      .replace(/`([^`]*)`/g, "$1")
+      .replace(/<[^>]+>/g, "")
+      .replace(/^\s*(?:[>#]+|[-*+]|\d+\.)\s+/gm, "")
+      .replace(/[*_~]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!text) continue;
+    const sentence = text.match(/^.*?[.?!](?=\s|$)/)?.[0] ?? text;
+    return sentence.length > 90 ? `${sentence.slice(0, 90).trimEnd()}…` : sentence;
+  }
+  return "";
+}
+
+// 발췌는 옮겨 적은 말이라 첫 문장을 잘라 붙이면 누구 말인지 사라진다. 출처를 이름으로 쓴다.
+const noteLine = (note: CollectionEntry<"notes">) =>
+  note.data.title ??
+  (note.data.source ? sourceTitle(note.data.source) : firstSentence(note.body ?? ""));
 
 // 글 페이지에는 BlogPosting이 있지만 블로그와 사람 자체를 말해 주는 자리는 홈뿐이다.
 // sameAs에는 내가 실제로 관리하는 곳만 적는다 — 링크가 하나라도 어긋나면 전체 신뢰도가 깎인다.
@@ -93,6 +124,32 @@ const jsonLd = JSON.stringify({
       )
     }
   </section>
+
+  {
+    recentNotes.length > 0 && (
+      <section class="notes-section" aria-labelledby="notes-heading">
+        <header class="notes-section-header">
+          <h2 id="notes-heading">조각</h2>
+          <p>정리되기 전의 말과 옮겨 적은 문장.</p>
+        </header>
+        <ul class="post-list">
+          {recentNotes.map((note) => (
+            <li>
+              <a class="note-row" href={`/notes/${note.id}/`}>
+                <time class="post-date" datetime={dayKey(note.data.date)}>
+                  {dateDot(note.data.date)}
+                </time>
+                <span>{noteLine(note)}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="notes-link">
+          <a href="/notes">조각 모두 보기 →</a>
+        </p>
+      </section>
+    )
+  }
 
   <section class="archive-section" aria-labelledby="archive-heading">
     <header class="archive-section-header">

@@ -62,8 +62,9 @@ function seriesLabel(title: string, name: string) {
   // 시리즈 이름과 제목이 같은 편(시리즈 첫 글에 흔하다)은 뗄 게 없다
   return rest || title;
 }
-// 에세이는 본문까지 세리프로 — 기술 글은 산세리프 유지
-const isEssay = post.data.category.startsWith("생각 정리");
+// 에세이는 본문까지 세리프로 — 기술 글은 산세리프 유지.
+// 카테고리가 아니라 글이 스스로 밝힌다(content.config.ts의 essay 주석)
+const isEssay = post.data.essay;
 
 // 제목이 박힌 전용 공유 카드. src/pages/og/[id].jpg.ts가 빌드 때 만든다.
 const ogImage = `/og/${post.id}.jpg`;
