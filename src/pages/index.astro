@@ -2,7 +2,7 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 import Base from "../layouts/Base.astro";
 import { SITE, mainCategory, categorySlug } from "../lib/site";
-import { dayKey, dateDot, dateKorean, readingMinutes } from "../lib/format";
+import { dayKey, dateDot } from "../lib/format";
 import { sortNotes, sourceTitle } from "../lib/notes";
 
 const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
@@ -11,9 +11,8 @@ const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
 const currentPosts = posts.filter((post) => post.data.tistoryId === undefined);
 const archivePosts = posts.filter((post) => post.data.tistoryId !== undefined);
 const firstArchiveYear = dayKey(archivePosts.at(-1)!.data.date).slice(0, 4);
-const [latest, ...recent] = currentPosts;
-// NEW는 2주까지만. 영영 붙어 있으면 "새 글"이 아니라 장식이 된다
-const isNew = latest !== undefined && Date.now() - latest.data.date.valueOf() < 14 * 86_400_000;
+// 세 구획이 같은 길이면 어느 것도 앞세우지 않는다는 뜻이 된다
+const currentPreview = currentPosts.slice(0, 5);
 const archivePreview = archivePosts.slice(0, 5);
 
 const recentNotes = sortNotes(await getCollection("notes", ({ data }) => !data.draft)).slice(0, 3);
@@ -63,7 +62,6 @@ const jsonLd = JSON.stringify({
       "@type": "Blog",
       "@id": `${SITE.url}/#blog`,
       name: SITE.title,
-      description: SITE.description,
       url: `${SITE.url}/`,
       inLanguage: "ko",
       author: { "@id": `${SITE.url}/#person` },
@@ -75,64 +73,43 @@ const jsonLd = JSON.stringify({
 
 <Base>
   <script slot="head" type="application/ld+json" set:html={jsonLd} />
-  <section slot="hero" class="hero-scene">
-    <div class="hero-inner">
-      <div class="hero-text">
-        <h1>piatoss<span class="accent">.log</span></h1>
-        <p>{SITE.tagline}</p>
-      </div>
-      <img class="hero-ledger" src="/bremen/ledger.webp" alt="" aria-hidden="true" />
-    </div>
-    <span class="firefly f1"></span>
-    <span class="firefly f2"></span>
-    <span class="firefly f3"></span>
-    <span class="firefly f4"></span>
-  </section>
-
-  <section class="current-section" aria-labelledby="current-heading">
-    <header class="current-section-header">
-      <h2 class="section-label" id="current-heading">최근 기록</h2>
-      {/* 글이 하나뿐이면 아래 카드가 곧 전부다. 같은 글로 데려가는 링크는 뺀다 */}
-      {currentPosts.length > 1 && <a href="/writing">기록 모두 보기 →</a>}
+  <section class="home-section" aria-labelledby="writing-heading">
+    <header class="home-section-header">
+      <h2 id="writing-heading">기록</h2>
+      {/* 소개 페이지와 같은 말을 쓴다 */}
+      <p>여기서 쓴 글 {currentPosts.length}편</p>
     </header>
+    <ul class="post-list">
+      {
+        currentPreview.map((post) => (
+          <li>
+            <time class="post-date" datetime={dayKey(post.data.date)}>{dateDot(post.data.date)}</time>
+            <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+            <a class="post-cat" href={`/categories/${categorySlug(post.data.category)}/`}>
+              {mainCategory(post.data.category)}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    {/* 글이 다섯 이하면 위 목록이 곧 전부다. 같은 글로 데려가는 링크는 뺀다 */}
     {
-      latest && (
-        <a class="featured" href={`/posts/${latest.id}/`}>
-          {isNew && <p class="featured-label">NEW</p>}
-          <h3 class="featured-title">{latest.data.title}</h3>
-          {latest.data.description && <p class="featured-desc">{latest.data.description}</p>}
-          <p class="featured-meta">
-            {dateKorean(latest.data.date)} · {mainCategory(latest.data.category)} · 약{" "}
-            {readingMinutes(latest.body)}분
-          </p>
-        </a>
-      )
-    }
-    {
-      recent.length > 0 && (
-        <ul class="post-list">
-          {recent.map((post) => (
-            <li>
-              <time class="post-date" datetime={dayKey(post.data.date)}>{dateDot(post.data.date)}</time>
-              <a href={`/posts/${post.id}/`}>{post.data.title}</a>
-              <a class="post-cat" href={`/categories/${categorySlug(post.data.category)}/`}>
-                {mainCategory(post.data.category)}
-              </a>
-            </li>
-          ))}
-        </ul>
+      currentPosts.length > currentPreview.length && (
+        <p class="home-section-link">
+          <a href="/writing">기록 모두 보기 →</a>
+        </p>
       )
     }
   </section>
 
   {
     recentNotes.length > 0 && (
-      <section class="notes-section" aria-labelledby="notes-heading">
-        <header class="notes-section-header">
+      <section class="home-section" aria-labelledby="notes-heading">
+        <header class="home-section-header">
           <h2 id="notes-heading">조각</h2>
           <p>정리되기 전의 말과 옮겨 적은 문장.</p>
         </header>
-        <ul class="post-list">
+        <ul class="post-list note-list">
           {recentNotes.map((note) => (
             <li>
               <a class="note-row" href={`/notes/${note.id}/`}>
@@ -144,15 +121,15 @@ const jsonLd = JSON.stringify({
             </li>
           ))}
         </ul>
-        <p class="notes-link">
+        <p class="home-section-link">
           <a href="/notes">조각 모두 보기 →</a>
         </p>
       </section>
     )
   }
 
-  <section class="archive-section" aria-labelledby="archive-heading">
-    <header class="archive-section-header">
+  <section class="home-section" aria-labelledby="archive-heading">
+    <header class="home-section-header">
       <h2 id="archive-heading">아카이브</h2>
       {/* 아카이브 페이지와 같은 말을 쓴다. "이전 기록"은 이 목록이 어디서 왔는지 말해 주지 않는다 */}
       <p>티스토리에서 옮겨 온 {firstArchiveYear}년 이후의 기록 {archivePosts.length}편</p>
@@ -170,7 +147,7 @@ const jsonLd = JSON.stringify({
         ))
       }
     </ul>
-    <p class="archive-link">
+    <p class="home-section-link">
       <a href="/archive">전체 {archivePosts.length}편 아카이브 →</a>
     </p>
   </section>

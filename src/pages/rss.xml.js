@@ -34,7 +34,8 @@ export async function GET(context) {
   );
   return rss({
     title: SITE.title,
-    description: SITE.description,
+    // 피드 스펙상 필수값. 사이트 공통 소개문은 없으니 태그라인을 쓴다
+    description: SITE.tagline,
     site: context.site,
     items,
     customData: "<language>ko</language>",
